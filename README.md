@@ -18,6 +18,7 @@
     <a href="https://zrrskywalker.github.io/" target="_blank">Renrui Zhang</a><sup>1</sup>,</span>
     <a href="https://synbol.github.io/" target="_blank">Yi Xin</a><sup>4</sup>,</span>
     <a href="https://gaopengcuhk.github.io/" target="_blank">Peng Gao</a><sup>4</sup>,</span>
+    <br>
     <a href="https://cemse.kaust.edu.sa/profiles/mohamed-elhoseiny" target="_blank">Mohamed Elhoseiny</a><sup>2</sup>, </span>
     <a href="https://www.ee.cuhk.edu.hk/~hsli/" target="_blank">Hongsheng Li</a><sup>1</sup></span>
 </div>
@@ -39,8 +40,8 @@
 
 ## :fire: News
 
-- [2025/4/18] Release [paper](tmp).
-- [2025/4/05] Release GenRef dataset, as well as the training and evaluation code.
+- [2025/4/??] Release [paper](tmp).
+- [2025/4/??] Release GenRef dataset, as well as the training and evaluation code.
 
 ## ✨ Quick Start  
 
