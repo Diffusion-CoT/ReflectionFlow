@@ -1,0 +1,40 @@
+{
+    
+    "pipeline_args": {
+        "pretrained_model_name_or_path": "black-forest-labs/FLUX.1-dev",
+        "cache_dir": "/ibex/user/zhaol0c/uniediting/flux1dev",
+        "torch_dtype": "bf16",
+        "height": 1024,
+        "width": 1024,
+        "condition_size": 512,
+        "max_sequence_length": 512,
+        "guidance_scale": 3.5,
+        "num_inference_steps": 30,
+        "lora_path": "/ibex/user/zhaol0c/uniediting_continue/new_reflectionflow/6000/pytorch_lora_weights.safetensors"
+    },
+    "verifier_args": {
+        "name": "openai",
+        "choice_of_metric": "overall_score",
+        "max_new_tokens": 1280,
+        "refine_prompt_relpath": "refine_prompt.txt",
+        "reflexion_prompt_relpath": "reflexion_prompt.txt",
+        "verifier_prompt_relpath": "geneval_detailed_verifier_prompt.json"
+    },
+    "search_args": {
+        "search_method": "random",
+        "search_rounds": 16
+    },
+    "model": {
+        "add_cond_attn": false,
+        "latent_lora": false,
+        "union_cond_attn": true
+    },
+    "reflection_args": {
+        "run_reflection": true
+    },
+    "prompt_refiner_args": {
+        "run_refinement": true
+    },
+    "use_low_gpu_vram": false,
+    "batch_size_for_img_gen": 1
+}

@@ -1,0 +1,8 @@
+torch>=2.5.1
+git+https://github.com/huggingface/diffusers.git
+git+https://github.com/huggingface/transformers.git@006d9249ec0270ff6c4d3840979d23fe94bdc763
+pydantic
+outlines
+accelerate
+protobuf
+sentencepiece

@@ -1,0 +1,39 @@
+Successfully retrieved statistics for job: 37746080. 
++------------------------------------------------------------------------------+
+| GPU ID: 3                                                                    |
++====================================+=========================================+
+|-----  Execution Stats  ------------+-----------------------------------------|
+| Start Time                         | Mon Mar  3 22:59:29 2025                |
+| End Time                           | Tue Mar  4 01:20:35 2025                |
+| Total Execution Time (sec)         | 8466.24                                 |
+| No. of Processes                   | 1                                       |
++-----  Performance Stats  ----------+-----------------------------------------+
+| Energy Consumed (Joules)           | 1112979                                 |
+| Power Usage (Watts)                | Avg: 309.421, Max: 442.406, Min: 70.938 |
+| Max GPU Memory Used (bytes)        | 54182019072                             |
+| SM Clock (MHz)                     | Avg: 1366, Max: 1410, Min: 1320         |
+| Memory Clock (MHz)                 | Avg: 1593, Max: 1593, Min: 1593         |
+| SM Utilization (%)                 | Avg: 73, Max: 100, Min: 0               |
+| Memory Utilization (%)             | Avg: 31, Max: 45, Min: 0                |
+| PCIe Rx Bandwidth (megabytes)      | Avg: N/A, Max: N/A, Min: N/A            |
+| PCIe Tx Bandwidth (megabytes)      | Avg: N/A, Max: N/A, Min: N/A            |
++-----  Event Stats  ----------------+-----------------------------------------+
+| Single Bit ECC Errors              | 0                                       |
+| Double Bit ECC Errors              | 0                                       |
+| PCIe Replay Warnings               | 0                                       |
+| Critical XID Errors                | 0                                       |
++-----  Slowdown Stats  -------------+-----------------------------------------+
+| Due to - Power (%)                 | 0                                       |
+|        - Thermal (%)               | 0                                       |
+|        - Reliability (%)           | Not Supported                           |
+|        - Board Limit (%)           | Not Supported                           |
+|        - Low Utilization (%)       | Not Supported                           |
+|        - Sync Boost (%)            | 0                                       |
++--  Compute Process Utilization  ---+-----------------------------------------+
+| PID                                | 844577                                  |
+|     Avg SM Utilization (%)         | 75                                      |
+|     Avg Memory Utilization (%)     | 31                                      |
++-----  Overall Health  -------------+-----------------------------------------+
+| Overall Health                     | Healthy                                 |
++------------------------------------+-----------------------------------------+
+

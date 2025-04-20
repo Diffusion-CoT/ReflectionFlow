@@ -1,0 +1,6 @@
+{
+    "pretrained_model_name_or_path": "PixArt-alpha/PixArt-Sigma-XL-2-1024-MS",
+    "torch_dtype": "fp16",
+    "height": 1024,
+    "width": 1024
+}

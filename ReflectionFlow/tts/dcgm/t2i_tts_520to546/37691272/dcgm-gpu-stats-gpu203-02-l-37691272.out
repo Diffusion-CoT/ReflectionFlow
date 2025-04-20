@@ -1,0 +1,35 @@
+Successfully retrieved statistics for job: 37691272. 
++------------------------------------------------------------------------------+
+| GPU ID: 2                                                                    |
++====================================+=========================================+
+|-----  Execution Stats  ------------+-----------------------------------------|
+| Start Time                         | Fri Feb 28 00:04:23 2025                |
+| End Time                           | Fri Feb 28 00:04:41 2025                |
+| Total Execution Time (sec)         | 18.32                                   |
+| No. of Processes                   | 0                                       |
++-----  Performance Stats  ----------+-----------------------------------------+
+| Energy Consumed (Joules)           | 0                                       |
+| Power Usage (Watts)                | Avg: 60.216, Max: 60.216, Min: 60.216   |
+| Max GPU Memory Used (bytes)        | 0                                       |
+| SM Clock (MHz)                     | Avg: 210, Max: 210, Min: 210            |
+| Memory Clock (MHz)                 | Avg: 1593, Max: 1593, Min: 1593         |
+| SM Utilization (%)                 | Avg: 0, Max: 0, Min: 0                  |
+| Memory Utilization (%)             | Avg: 1, Max: 1, Min: 1                  |
+| PCIe Rx Bandwidth (megabytes)      | Avg: 0, Max: 0, Min: 0                  |
+| PCIe Tx Bandwidth (megabytes)      | Avg: 0, Max: 0, Min: 0                  |
++-----  Event Stats  ----------------+-----------------------------------------+
+| Single Bit ECC Errors              | 0                                       |
+| Double Bit ECC Errors              | 0                                       |
+| PCIe Replay Warnings               | Not Specified                           |
+| Critical XID Errors                | 0                                       |
++-----  Slowdown Stats  -------------+-----------------------------------------+
+| Due to - Power (%)                 | 0                                       |
+|        - Thermal (%)               | 0                                       |
+|        - Reliability (%)           | Not Supported                           |
+|        - Board Limit (%)           | Not Supported                           |
+|        - Low Utilization (%)       | Not Supported                           |
+|        - Sync Boost (%)            | 0                                       |
++-----  Overall Health  -------------+-----------------------------------------+
+| Overall Health                     | Healthy                                 |
++------------------------------------+-----------------------------------------+
+

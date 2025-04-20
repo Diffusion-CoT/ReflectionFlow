@@ -1,0 +1,1 @@
+python main.py --pipeline_config_path configs/flux.1_dev.json --search_rounds 4 --prompt="a photo of three scarfs." --num_prompts None --max_new_tokens 800 --choice_of_metric overall_score --verifier_to_use openai --openai_api_key=sk-hlepj5ZdRYki30qQKYPLuxrr_Na6t2co28omDnG4D7T3BlbkFJziPP9Z6Id_xewMotG7z6ZeclofyBcRJkwuuKSCZo0A

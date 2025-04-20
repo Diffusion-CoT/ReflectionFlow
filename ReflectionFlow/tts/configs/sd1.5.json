@@ -1,0 +1,7 @@
+{
+    "pretrained_model_name_or_path": "stable-diffusion-v1-5/stable-diffusion-v1-5",
+    "torch_dtype": "fp16",
+    "height": 512,
+    "width": 512,
+    "negative_prompt": "bad quality, worse quality, degenerate quality" 
+}
