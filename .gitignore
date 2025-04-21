@@ -1,7 +1,11 @@
-# 忽略所有 .out 文件
 *.out
 *.batch
 
-ReflectionFlow/tts/dcgm/
-ReflectionFlow/tts/output/
-ReflectionFlow/tts/__pycache__/
+train_flux/run/
+train_flux/wandb/
+train_flux/train/__pycache__
+train_flux/flux/__pycache__
+
+tts/dcgm/
+tts/output/
+tts/__pycache__/

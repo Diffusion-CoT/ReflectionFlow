@@ -1,0 +1,10 @@
+diffusers
+transformers
+peft
+opencv-python
+sentencepiece
+lightning
+datasets
+torchvision
+prodigyopt
+wandb

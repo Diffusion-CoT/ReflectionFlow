@@ -1,0 +1,76 @@
+cache_dir: /mnt/petrelfs/zhuole/.cache/huggingface/hub/
+dtype: bfloat16
+model:
+  add_cond_attn: false
+  latent_lora: false
+  union_cond_attn: true
+model_path: black-forest-labs/FLUX.1-dev
+train:
+  accumulate_grad_batches: 1
+  batch_size: 8
+  condition_type: cot
+  dataloader_workers: 8
+  dataset:
+    condition_size: 512
+    drop_image_prob: 0.1
+    drop_reflection_prob: 0.1
+    drop_text_prob: 0.1
+    path:
+      editing:
+      - /mnt/petrelfs/zhuole/data/metadata_clean/editing_pairs_train.json
+      general:
+      - /mnt/petrelfs/zhuole/data/metadata_clean/flux_pro_detailed_prompt_pairs_train.json
+      - /mnt/petrelfs/zhuole/data/metadata_clean/flux_pro_short_prompt_pairs_train.json
+      - /mnt/petrelfs/zhuole/data/metadata_clean/id_prompt_pairs_train.json
+      - /mnt/petrelfs/zhuole/data/metadata_clean/zl2m_v2_pairs_train.json
+      length:
+      - /mnt/petrelfs/zhuole/data/metadata_clean/flux_pro_pairs_train.json
+      - /mnt/petrelfs/zhuole/data/metadata_clean/zl2m_prompt_pairs_train.json
+      rule:
+      - /mnt/petrelfs/zhuole/data/metadata_clean/geneval_pairs_train.json
+      - /mnt/petrelfs/zhuole/data/metadata_clean/t2i_pairs_train.json
+    root_dir: ''
+    split_ratios:
+      editing:
+      - 0.7
+      - 0.0
+      general:
+      - 0.1
+      - 0.3
+      length:
+      - 0.1
+      - 0.3
+      rule:
+      - 0.1
+      - 0.4
+    target_size: 1024
+    training_stages:
+    - 0
+    - 5000
+    type: img
+    val_path:
+      general:
+      - /mnt/petrelfs/zhuole/ReflectionFlow_/val.json
+    val_root_dir: ''
+  gradient_checkpointing: true
+  lora_config:
+    init_lora_weights: gaussian
+    lora_alpha: 32
+    r: 32
+    target_modules: (.*x_embedder|.*(?<!single_)transformer_blocks\.[0-9]+\.norm1\.linear|.*(?<!single_)transformer_blocks\.[0-9]+\.attn\.to_k|.*(?<!single_)transformer_blocks\.[0-9]+\.attn\.to_q|.*(?<!single_)transformer_blocks\.[0-9]+\.attn\.to_v|.*(?<!single_)transformer_blocks\.[0-9]+\.attn\.to_out\.0|.*(?<!single_)transformer_blocks\.[0-9]+\.ff\.net\.2|.*single_transformer_blocks\.[0-9]+\.norm\.linear|.*single_transformer_blocks\.[0-9]+\.proj_mlp|.*single_transformer_blocks\.[0-9]+\.proj_out|.*single_transformer_blocks\.[0-9]+\.attn.to_k|.*single_transformer_blocks\.[0-9]+\.attn.to_q|.*single_transformer_blocks\.[0-9]+\.attn.to_v|.*single_transformer_blocks\.[0-9]+\.attn.to_out)
+  max_steps: -1
+  optimizer:
+    params:
+      lr: 1
+      safeguard_warmup: true
+      use_bias_correction: true
+      weight_decay: 0.01
+    type: Prodigy
+  resume_training_from_checkpoint_path: ''
+  resume_training_from_last_checkpoint: false
+  sample_interval: 2000
+  save_interval: 2000
+  save_path: ./runs/test
+  wandb:
+    name: full_data_cond_512
+    project: ReflectionFlow

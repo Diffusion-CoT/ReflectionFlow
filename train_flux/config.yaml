@@ -1,0 +1,79 @@
+model_path: "black-forest-labs/FLUX.1-dev"
+dtype: "bfloat16"
+cache_dir: "/mnt/petrelfs/zhuole/.cache/huggingface/hub/"
+
+model:
+  union_cond_attn: true
+  add_cond_attn: false
+  latent_lora: false
+
+train:
+  batch_size: 8
+  accumulate_grad_batches: 1
+  dataloader_workers: 8
+  save_interval: 2000
+  sample_interval: 2000
+  max_steps: -1
+  gradient_checkpointing: true
+  save_path: "./runs/test"
+
+  # Specify the type of condition to use.
+  condition_type: "cot"
+  resume_training_from_last_checkpoint: false
+  resume_training_from_checkpoint_path: ""
+  dataset:
+    type: "img"
+    path: {
+      "general": [
+        "/mnt/petrelfs/zhuole/data/metadata_clean/flux_pro_detailed_prompt_pairs_train.json", # 35344
+        "/mnt/petrelfs/zhuole/data/metadata_clean/flux_pro_short_prompt_pairs_train.json", # 53551
+        "/mnt/petrelfs/zhuole/data/metadata_clean/id_prompt_pairs_train.json", # 41440
+        "/mnt/petrelfs/zhuole/data/metadata_clean/zl2m_v2_pairs_train.json" # 11513
+      ],
+      "length": [
+        "/mnt/petrelfs/zhuole/data/metadata_clean/flux_pro_pairs_train.json", # 78939
+        "/mnt/petrelfs/zhuole/data/metadata_clean/zl2m_prompt_pairs_train.json" # 16292
+      ],
+      "rule": [
+        "/mnt/petrelfs/zhuole/data/metadata_clean/geneval_pairs_train.json", # 129321
+        "/mnt/petrelfs/zhuole/data/metadata_clean/t2i_pairs_train.json" # 55388
+      ],
+      "editing": [
+        "/mnt/petrelfs/zhuole/data/metadata_clean/editing_pairs_train.json" # 616409
+      ]
+    }
+    split_ratios: {
+      "general": [0.1, 0.3],
+      "length": [0.1, 0.3],
+      "rule": [0.1, 0.4],
+      "editing": [0.7, 0.0]
+    }
+    training_stages: [0, 5000]
+    root_dir: ""
+    val_path: {
+      "general": ["/mnt/petrelfs/zhuole/ReflectionFlow_/val.json"]
+    }
+    val_root_dir: ""
+    condition_size: 512
+    target_size: 1024
+    drop_text_prob: 0.1
+    drop_image_prob: 0.1
+    drop_reflection_prob: 0.1
+
+  wandb:
+    project: "ReflectionFlow"
+    name: "full_data_cond_512"
+
+  lora_config:
+    r: 32
+    lora_alpha: 32
+    init_lora_weights: "gaussian"
+    target_modules: "(.*x_embedder|.*(?<!single_)transformer_blocks\\.[0-9]+\\.norm1\\.linear|.*(?<!single_)transformer_blocks\\.[0-9]+\\.attn\\.to_k|.*(?<!single_)transformer_blocks\\.[0-9]+\\.attn\\.to_q|.*(?<!single_)transformer_blocks\\.[0-9]+\\.attn\\.to_v|.*(?<!single_)transformer_blocks\\.[0-9]+\\.attn\\.to_out\\.0|.*(?<!single_)transformer_blocks\\.[0-9]+\\.ff\\.net\\.2|.*single_transformer_blocks\\.[0-9]+\\.norm\\.linear|.*single_transformer_blocks\\.[0-9]+\\.proj_mlp|.*single_transformer_blocks\\.[0-9]+\\.proj_out|.*single_transformer_blocks\\.[0-9]+\\.attn.to_k|.*single_transformer_blocks\\.[0-9]+\\.attn.to_q|.*single_transformer_blocks\\.[0-9]+\\.attn.to_v|.*single_transformer_blocks\\.[0-9]+\\.attn.to_out)"
+
+  optimizer:
+    type: "Prodigy"
+    params:
+      lr: 1
+      use_bias_correction: true
+      safeguard_warmup: true
+      weight_decay: 0.01
