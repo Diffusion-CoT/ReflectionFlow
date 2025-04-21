@@ -47,7 +47,15 @@
 
 ### Installation
 
-Coming soon.
+1. **Environment setup**
+```bash
+conda create -n ReflectionFlow python=3.10
+conda activate ReflectionFlow
+```
+2. **Requirements installation**
+```bash
+pip install -r requirements.txt
+```
 
 ## 🚀 GenRef Dataset
 
@@ -65,7 +73,11 @@ Coming soon.
 
 
 ## 🤖 Reflection Tuning
-Coming soon.
+
+The config file is `config.yaml`. Run the following command for training:
+```bash
+bash train/script/train_subject.sh
+```
 
 ## ⚡ Inference Time Scaling
 Coming Soon
@@ -73,8 +85,10 @@ Coming Soon
 ## 🤝 Acknowledgement
 
 We are deeply grateful for the following GitHub repositories, as their valuable code and efforts have been incredibly helpful:
- 
-Coming Soon.
+
+* OminiControl (https://github.com/Yuanshi9815/OminiControl)
+* Flux-TTS (https://github.com/sayakpaul/tt-scale-flux)
+
 
 ## ✏️ Citation
 
