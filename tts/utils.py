@@ -29,7 +29,7 @@ def parse_cli_args():
     parser.add_argument(
         "--pipeline_config_path",
         type=str,
-        default="configs/flux.1_dev_modified.json",
+        default="configs/flux.1_dev_nvilascore.json",
         help="Pipeline configuration path that should include loading info and __call__() args and their values.",
     )
     parser.add_argument(
@@ -47,7 +47,7 @@ def parse_cli_args():
     parser.add_argument(
         "--imgpath",
         type=str,
-        default="/ibex/user/zhaol0c/uniediting/training/geneval_gtsamples",
+        default="",
         help="path to generated images and their metadata",
     )
     parser.add_argument(

@@ -80,7 +80,52 @@ bash train/script/train_subject.sh
 ```
 
 ## ⚡ Inference Time Scaling
-Coming Soon
+
+### Introduction
+We provide the code for the inference time scaling of our reflection-tuned models. Currently, we support:
+* OpenAI as score verifier, reflection generator, and prompt refiner.
+* NVILA as score verifier.
+* Our finetuned reflection generator.
+
+### Setup
+First, you need to set up with following command lines:
+```bash
+export OPENAI_API_KEY=your_api_key
+# if you want to use NVILA as score verifier
+pip install transformers==4.46
+pip install git+https://github.com/bfshi/scaling_on_scales.git
+```
+Then you need to set up the FLUX_PATH and LORA_PATH in the config file of `tts/config`.
+
+If you want to use our finetuned reflection generator, you need to first install [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). Then download the model from [here](https://huggingface.co/diffusion-cot/reward-models/tree/main) and change the `model_name_or_path` in the config file of `tts/config/our_reflectionmodel.yaml`. Next, host the model with
+```bash
+API_PORT=8001 CUDA_VISIBLE_DEVICES=0 llamafactory-cli api configs/our_reflectionmodel.yaml
+```
+And change the `name` of `reflection_args` in the config file to `ours`.
+
+### Run
+First, please run `tts_t2i_baseline.py` to generate naive noise scaling results, with the commands:
+```bash
+cd tts
+python tts_t2i_baseline.py --output_dir=OUTPUT_DIR --meta_path=geneval/evaluation_metadata.jsonl --pipeline_config_path=configs/flux.1_dev_gptscore.json 
+```
+
+Next, you can run the following command to generate the results of reflection tuning:
+```bash
+python tts_t2i_noise_scaling.py --imgpath=OUTPUT_DIR --pipeline_config_path=CONFIG_PATH --output_dir=NEW_OUTPUT_DIR
+```
+
+We also privide the code for only noise&prompt scaling:
+```bash
+python tts_t2i_noise_prompt_scaling.py --output_dir=OUTPUT_DIR --meta_path=geneval/evaluation_metadata.jsonl --pipeline_config_path=configs/flux.1_dev_gptscore.json 
+```
+
+### Nvila Verifier Filter
+
+After generation, we provide the code using nvila verifier to filter getting different number of samples results.
+```bash
+python verifier_filter.py --imgpath=OUTPUT_DIR --pipeline_config_path=configs/flux.1_dev_nvilascore.json 
+```
 
 ## 🤝 Acknowledgement
 

@@ -10,21 +10,17 @@ import copy
 from typing import Union, List, Optional
 from PIL import Image
 import sys
-sys.path.append('/home/zhaol0c/uni_editing/ReflectionFlow')
-sys.path.append('/home/zhaol0c/uni_editing/ReflectionFlow/reward_modeling')
-from train_flux.src.flux.generate import generate
-from train_flux.src.flux.condition import Condition
-from train_flux.src.sd3.generate import generate as generate_sd3
-from train_flux.src.sd3.condition import Condition as ConditionSD3
+sys.path.append('../')
+from train_flux.flux.generate import generate
+from train_flux.flux.condition import Condition
 import time
-from transformers import AutoModel
-from reward_modeling.test_reward import VideoVLMRewardInference
+from verifiers.openai_verifier import OpenAIVerifier
+from verifiers.nvila_verifier import load_model
 
-score_verfier = VideoVLMRewardInference("/ibex/user/zhaol0c/uniediting_continue/our_reward/models--diffusion-cot--reward-models/snapshots/5feb9ad5db2048b645178804eeb326c93039daa6", load_from_pretrained_step=10080, device="cuda", dtype=torch.bfloat16)
-
-from utils import prompt_to_filename, get_noises, TORCH_DTYPE_MAP, get_latent_prep_fn, parse_cli_args, MODEL_NAME_MAP
+from utils import get_noises, TORCH_DTYPE_MAP, get_latent_prep_fn, parse_cli_args
 from openai import OpenAI
 
+global verifier, yes_id, no_id
 client = OpenAI(api_key="0",base_url="http://0.0.0.0:8001/v1")
 
 # our reflection model
@@ -45,7 +41,6 @@ def generate_messages(bad_image, prompt):
     return messages
 
 # Non-configurable constants
-TOPK = 2  # Always selecting the top-1 noise for the next round
 MAX_SEED = np.iinfo(np.int32).max  # To generate random seeds
 MAX_RETRIES = 5
 RETRY_DELAY = 2
@@ -103,7 +98,6 @@ def sample(
     reflections: Union[str, List[str]],
     search_round: int,
     pipe: DiffusionPipeline,
-    verifier,
     topk: int,
     root_dir: str,
     config: dict,
@@ -121,20 +115,22 @@ def sample(
     score them with the verifier, and select the top-K noise.
     The images and JSON artifacts are saved under `root_dir`.
     """
+    global verifier, yes_id, no_id
     # breakpoint()
     flag_terminated = search_round == total_rounds
     config_cp = copy.deepcopy(config)
-    
     verifier_args = config["verifier_args"]
-    max_new_tokens = verifier_args.get("max_new_tokens", None)
-    choice_of_metric = verifier_args.get("choice_of_metric", None)
-    verifier_to_use = verifier_args.get("name", "gemini")
+    verifier_name = verifier_args.get("name", "openai")
+
+    refine_args = config["refine_args"]
+    max_new_tokens = refine_args.get("max_new_tokens", None)
+    choice_of_metric = refine_args.get("choice_of_metric", None)
+    # currently only support openai refiner
+    refiner = OpenAIVerifier(refine_prompt_relpath=refine_args["refine_prompt_relpath"], reflexion_prompt_relpath=refine_args["reflexion_prompt_relpath"], verifier_prompt_relpath=refine_args["verifier_prompt_relpath"])
     
     use_low_gpu_vram = config_cp.get("use_low_gpu_vram", False)
     batch_size_for_img_gen = config_cp.get("batch_size_for_img_gen", 1)
     reflection_args = config_cp.get("reflection_args", None)
-
-    model_name = config['pipeline_args']['pretrained_model_name_or_path']
 
     images_for_prompt = []
     noises_used = []
@@ -145,20 +141,39 @@ def sample(
     # breakpoint()
     start_time = time.time()
     outputs = []
-    for imgname in imagetoupdate:
-        scores = score_verfier.reward([imgname], [original_prompt], use_norm=True)
-        outputs.append({"image_name": imgname, "score": scores[0]["VQ"]})
+    if verifier_name == "openai":
+        pil_imgs = [Image.open(tmp) for tmp in imagetoupdate]
+        verifier_inputs = verifier.prepare_inputs(images=pil_imgs, prompts=[original_prompt]*len(pil_imgs))
+        outputs = verifier.score(
+            inputs=verifier_inputs,
+            tag=tag,
+            max_new_tokens=max_new_tokens,  # Ignored when using Gemini for now.
+        )
+        def f(x):
+            if isinstance(x[choice_of_metric], dict):
+                return x[choice_of_metric]["score"]
+            return x[choice_of_metric]
+        sorted_list = sorted(outputs, key=lambda x: f(x), reverse=True)
+    elif verifier_name == "nvila":
+        outputs = []
+        for imgname in imagetoupdate:
+            r1, scores1 = verifier.generate_content([Image.open(imgname), original_prompt])
+            if r1 == "yes":
+                outputs.append({"image_name": imgname, "label": "yes", "score": scores1[0][0, yes_id].detach().cpu().float().item()})
+            else:
+                outputs.append({"image_name": imgname, "label": "no", "score": scores1[0][0, no_id].detach().cpu().float().item()})
+        def f(x):
+            if x["label"] == "yes":
+                return (0, -x["score"])
+            else:
+                return (1, x["score"])
+        sorted_list = sorted(outputs, key=lambda x: f(x))
     end_time = time.time()
     print(f"Time taken for evaluation: {end_time - start_time} seconds")
 
-    def f(x):
-        return (0, -x["score"])
-
     # breakpoint()
-    sorted_list = sorted(outputs, key=lambda x: f(x))
     topk_scores = sorted_list[:topk]
     topk_idx = [outputs.index(x) for x in topk_scores]
-    # best_img_path = imagetoupdate[topk_idx[0]]
     selected_imgs = [imagetoupdate[i] for i in topk_idx]
     selected_outputs = [outputs[i] for i in topk_idx]
     if topk > len(selected_imgs):
@@ -169,7 +184,6 @@ def sample(
     # save best img evaluation results
     with open(os.path.join(root_dir, f"best_img_detailedscore.jsonl"), "a") as f:
         data = {
-            # "best_img_path": best_img_path,
             "evaluation": selected_outputs,
             "filenames_batch": selected_imgs,
         }
@@ -181,46 +195,63 @@ def sample(
     reflection_performed = False
     if reflection_args and reflection_args.get("run_reflection", False):
         start_time = time.time()
-        # evaluations = [json.dumps(outputs[topk_idx[0]])]
         evaluations = [json.dumps(output_) for output_ in selected_outputs]
-        reflection_inputs = []
-        for idx in range(len(conditionimg_forreflections)):
-            reflection_inputs.append(generate_messages(conditionimg_forreflections[idx], original_prompt))
-
-        print("Generating reflection.")
-        update_reflections = []
-        for reflection_input in reflection_inputs:
+        if reflection_args["name"] == "openai":
+            reflection_inputs = refiner.prepare_reflexion_prompt_inputs(
+                images=conditionimg_forreflections, 
+                original_prompt=[original_prompt] * len(conditionimg_forreflections), 
+                current_prompt=updated_prompt, 
+                reflections=reflections,
+                evaluations=evaluations
+            )
+            print("Generating reflection.")
             retries = 0
             while retries < MAX_RETRIES:
                 try:
-                    res = client.chat.completions.create(messages=reflection_input, model="Qwen/Qwen2.5-VL-7B-Instruct")
-                    update_reflections.append(res.choices[0].message.content)
+                    update_reflections = refiner.generate_reflections(
+                        inputs=reflection_inputs,
+                        max_new_tokens=max_new_tokens,  # Ignored when using Gemini for now.
+                    )
                     break
-                except Exception as e: 
+                except Exception as e:
                     retries += 1
                     print(f"Error generating reflection: {e}. Retrying in {RETRY_DELAY} seconds...")
                     time.sleep(RETRY_DELAY)
+        else:
+            reflection_inputs = []
+            for idx in range(len(conditionimg_forreflections)):
+                reflection_inputs.append(generate_messages(conditionimg_forreflections[idx], original_prompt))
+
+            print("Generating reflection.")
+            update_reflections = []
+            for reflection_input in reflection_inputs:
+                retries = 0
+                while retries < MAX_RETRIES:
+                    try:
+                        res = client.chat.completions.create(messages=reflection_input, model="Qwen/Qwen2.5-VL-7B-Instruct")
+                        update_reflections.append(res.choices[0].message.content)
+                        break
+                    except Exception as e: 
+                        retries += 1
+                        print(f"Error generating reflection: {e}. Retrying in {RETRY_DELAY} seconds...")
+                        time.sleep(RETRY_DELAY)
         end_time = time.time()
         print(f"Time taken for reflection generation: {end_time - start_time} seconds")
 
         # we maintain updated_prompt and reflection separately, everytime we concat them together to form the flux input. and update seperately
         reflection_performed = True
     #####################################################
-    # breakpoint()
     # Refine the prompt for the next round
     prompt_refiner_args = config_cp.get("prompt_refiner_args", None)
     refinement_performed = False
     if prompt_refiner_args and prompt_refiner_args.get("run_refinement", False):
         start_time = time.time()
-        # evaluations = [json.dumps(json_dict) for json_dict in outputs]
-        # evaluations = [json.dumps(output_) for output_ in selected_outputs]
-        # refined_prompt_inputs = verifier.prepare_refine_prompt_inputs(images=selected_imgs, evaluations=evaluations, original_prompt=[original_prompt] * len(selected_imgs), current_prompt=updated_prompt, reflections=update_reflections)
-
-        # omit evaluation, because nvilaverifier output is meaningless.
-        refined_prompt_inputs = verifier.prepare_refine_prompt_inputs(images=selected_imgs, original_prompt=[original_prompt] * len(selected_imgs), current_prompt=updated_prompt, reflections=update_reflections)
-        refined_prompt = verifier.refine_prompt(inputs=refined_prompt_inputs)
-        # assert len(refined_prompt) == len(prompts)
-        # prompts = refined_prompt
+        evaluations = [json.dumps(output_) for output_ in selected_outputs]
+        if verifier_name == "openai":
+            refined_prompt_inputs = refiner.prepare_refine_prompt_inputs(images=selected_imgs, evaluations=evaluations, original_prompt=[original_prompt] * len(selected_imgs), current_prompt=updated_prompt, reflections=update_reflections)
+        else:
+            refined_prompt_inputs = refiner.prepare_refine_prompt_inputs(images=selected_imgs, original_prompt=[original_prompt] * len(selected_imgs), current_prompt=updated_prompt, reflections=update_reflections)
+        refined_prompt = refiner.refine_prompt(inputs=refined_prompt_inputs)
         end_time = time.time()
         print(f"Time taken for prompt refinement: {end_time - start_time} seconds")
         refinement_performed = True
@@ -239,18 +270,13 @@ def sample(
                 f.write(f"refined_prompt{search_round}: "+json.dumps(best_img_refine_prompt) + "\n")
             f.write(f"filenames_batch{search_round}: "+json.dumps(selected_imgs) + "\n")
     #####################################################
-    # breakpoint()
     original_prompts = [original_prompt] * num_samples
-    if model_name == "black-forest-labs/FLUX.1-dev":
-        condition_cls = Condition
-    else:
-        condition_cls = ConditionSD3
     conditionimgs = []
     for i in range(len(selected_imgs)):
         tmp = Image.open(selected_imgs[i])
         tmp = tmp.resize((config_cp["pipeline_args"]["condition_size"], config_cp["pipeline_args"]["condition_size"]))
         position_delta = np.array([0, -config_cp["pipeline_args"]["condition_size"] // 16])
-        conditionimgs.append(condition_cls(condition=tmp, condition_type="cot", position_delta=position_delta))
+        conditionimgs.append(Condition(condition=tmp, condition_type="cot", position_delta=position_delta))
 
     # Convert the noises dictionary into a list of (seed, noise) tuples.
     noise_items = list(noises.items())
@@ -276,7 +302,7 @@ def sample(
         ]
         full_imgnames.extend(filenames_batch)
 
-        if use_low_gpu_vram and verifier_to_use != "gemini":
+        if use_low_gpu_vram:
             pipe = pipe.to("cuda:0")
         print(f"Generating images for batch with seeds: {[s for s in seeds_batch]}.")
 
@@ -285,12 +311,7 @@ def sample(
         conditionimgs_batch = conditionimgs[i : i + batch_size_for_img_gen]
 
         # use omini model to generate images
-        if model_name == "black-forest-labs/FLUX.1-dev":
-            generate_func = generate
-        else:
-            generate_func = generate_sd3
-        # breakpoint()
-        batch_result = generate_func(
+        batch_result = generate(
             pipe,
             prompt=batched_prompts,
             conditions=conditionimgs_batch,
@@ -300,7 +321,7 @@ def sample(
             default_lora=True,
         )
         batch_images = batch_result.images
-        if use_low_gpu_vram and verifier_to_use != "gemini":
+        if use_low_gpu_vram:
             pipe = pipe.to("cpu")
 
         # Iterate over the batch and save the images.
@@ -314,39 +335,71 @@ def sample(
 
     ################## score again to decide whether save
     start_time = time.time()
-    outputs = []
-    for imgname in full_imgnames:
-        scores = score_verfier.reward([imgname], [original_prompt], use_norm=True)
-        outputs.append({"image_name": imgname, "score": scores[0]["VQ"]})
+    if verifier_name == "openai":
+        verifier_inputs = verifier.prepare_inputs(images=images_for_prompt, prompts=[original_prompt]*len(images_for_prompt))
+        outputs = verifier.score(
+            inputs=verifier_inputs,
+            tag=tag,
+            max_new_tokens=max_new_tokens,  # Ignored when using Gemini for now.
+        )
+    elif verifier_name == "nvila":
+        outputs = []
+        for imgname in full_imgnames:
+            r1, scores1 = verifier.generate_content([Image.open(imgname), original_prompt])
+            if r1 == "yes":
+                outputs.append({"image_name": imgname, "label": "yes", "score": scores1[0][0, yes_id].detach().cpu().float().item()})
+            else:
+                outputs.append({"image_name": imgname, "label": "no", "score": scores1[0][0, no_id].detach().cpu().float().item()})
+    else:
+        raise NotImplementedError(f"Verifier {verifier_name} not supported")
     end_time = time.time()
     print(f"Time taken for evaluation: {end_time - start_time} seconds")
 
     # init chain
     if search_round == 1:
-        # breakpoint()
         # Update chains with the selected images and scores
-        for i, img_path in enumerate(full_imgnames):
-            if img_path not in chains:  # init
-                chains[img_path] = {"images": [], "scores": []}
-            chains[img_path]["images"].append(img_path)  
-            chains[img_path]["scores"].append(outputs[i]["score"]) 
+        if verifier_name == "openai":
+            for i, img_path in enumerate(full_imgnames):
+                if img_path not in chains: 
+                    chains[img_path] = {"images": [], "scores": []}
+                chains[img_path]["images"].append(img_path)  
+                chains[img_path]["scores"].append(outputs[i][choice_of_metric]['score'])
+        elif verifier_name == "nvila":
+            for i, img_path in enumerate(full_imgnames):
+                if img_path not in chains:  # init
+                    chains[img_path] = {"images": [], "scores": [], "labels": []}
+                chains[img_path]["images"].append(img_path)  
+                chains[img_path]["labels"].append(outputs[i]["label"])
+                chains[img_path]["scores"].append(outputs[i]["score"]) 
+        else:
+            raise NotImplementedError(f"Verifier {verifier_name} not supported")
     # update chains
     else:
-        # breakpoint()
-        for i, (img_path, output) in enumerate(zip(full_imgnames, outputs)):
-            parent_imgpath = selected_imgs[i]
-            for img, score in chains.items():
-                if parent_imgpath in chains[img]["images"]:
-                    chains[img]["images"].append(img_path) 
-                    chains[img]["scores"].append(outputs[i]["score"]) 
-                    break
+        if verifier_name == "openai":
+            for i, (img_path, output) in enumerate(zip(full_imgnames, outputs)):
+                parent_imgpath = selected_imgs[i]
+                for img, score in chains.items():
+                    if parent_imgpath in chains[img]["images"]:
+                        chains[img]["images"].append(img_path)
+                        chains[img]["scores"].append(outputs[i][choice_of_metric]['score']) 
+        elif verifier_name == "nvila":
+            for i, (img_path, output) in enumerate(zip(full_imgnames, outputs)):
+                parent_imgpath = selected_imgs[i]
+                for img, score in chains.items():
+                    if parent_imgpath in chains[img]["images"]:
+                        chains[img]["images"].append(img_path) 
+                        chains[img]["labels"].append(outputs[i]["label"])
+                        chains[img]["scores"].append(outputs[i]["score"]) 
+                        break
+        else:
+            raise NotImplementedError(f"Verifier {verifier_name} not supported")
 
     # save the last round imgs
     if search_round == total_rounds:
         for i in range(len(images_for_prompt)):
             images_for_prompt[i].save(os.path.join(sample_path_lastround, f"{i:05}.png"))
 
-    # save the best group img
+    # save the best img on each path
     if search_round == 1:
         for i in range(len(images_for_prompt)):
             images_for_prompt[i].save(os.path.join(sample_path_bestround, f"{i:05}.png"))
@@ -354,10 +407,16 @@ def sample(
         # breakpoint()
         best_images = []
         for chain_key, chain in chains.items():
-            best_idx = min(
-                range(len(chain["scores"])),
-                key=lambda idx: (0 , -chain["scores"][idx])
-            )
+            if verifier_name == "openai":
+                best_idx = np.argmax(chain["scores"]) 
+            elif verifier_name == "nvila":
+                best_idx = min(
+                    range(len(chain["scores"])),
+                    key=lambda idx: (0 if chain["labels"][idx] == "yes" else 1,  
+                                -chain["scores"][idx] if chain["labels"][idx] == "yes" else chain["scores"][idx])
+                )
+            else:
+                raise NotImplementedError(f"Verifier {verifier_name} not supported")
             best_images.append(chain["images"][best_idx])  # Save the corresponding image
 
         for i, img_path in enumerate(best_images):
@@ -367,34 +426,37 @@ def sample(
     # save the best 1 img
     if search_round ==total_rounds:
         all_scores_with_images = []
-        for chain_key, chain in chains.items():
-            for img_path, score in zip(chain["images"], chain["scores"]):
-                all_scores_with_images.append((score, img_path))
+        if verifier_name == "openai":
+            for chain_key, chain in chains.items():
+                for img_path, score in zip(chain["images"], chain["scores"]):
+                    all_scores_with_images.append((score, img_path))
 
-        top_scores_with_images = sorted(all_scores_with_images,  key=lambda x: (0, -x[0]))[0]
-        score, img_path = top_scores_with_images
+            top_scores_with_images = sorted(all_scores_with_images, key=lambda x: x[0], reverse=True)[0]
+        elif verifier_name == "nvila":
+            for chain_key, chain in chains.items():
+                for img_path, label, score in zip(chain["images"], chain['labels'], chain["scores"]):
+                    all_scores_with_images.append((label, score, img_path))
+
+            top_scores_with_images = sorted(all_scores_with_images,  key=lambda x: (0 if x[0] == "yes" else 1, -x[1] if x[0] == "yes" else x[1]))[0]
+        else:
+            raise NotImplementedError(f"Verifier {verifier_name} not supported")
+        label, score, img_path = top_scores_with_images
         img = Image.open(img_path)
         img.save(os.path.join(sample_path_best, f"{i:05}.png"))
 
     datapoint = {
         "original_prompt": original_prompt,
-        # "refined_prompt": best_img_refine_prompt,
         "search_round": search_round,
         "num_noises": len(noises),
         "choice_of_metric": choice_of_metric,
         "generated_img": full_imgnames,
         "flag_terminated": flag_terminated,
         "chains": chains,
-        # "reflections": best_img_reflections,
     }
     if refinement_performed:
         datapoint["refined_prompt"] = best_img_refine_prompt
     if reflection_performed:
         datapoint["reflections"] = best_img_reflections
-    # # Save the best config JSON file alongside the images.
-    # best_json_filename = best_img_path.replace(".png", ".json")
-    # with open(best_json_filename, "w") as f:
-    #     json.dump(datapoint, f, indent=4)
     return datapoint
 
 
@@ -410,6 +472,7 @@ def main():
       - Runs several search rounds where for each prompt a pool of random noises is generated,
         candidate images are produced and verified, and the best noise is chosen.
     """
+    global verifier, yes_id, no_id
     args = parse_cli_args()
     os.environ["API_KEY"] = os.environ["OPENAI_API_KEY"] # args.openai_api_key
 
@@ -420,10 +483,8 @@ def main():
     config.update(vars(args))
 
     search_rounds = config["search_args"]["search_rounds"]
-    # num_prompts = args.num_prompts
+    search_branch = config["search_args"]["search_branch"]
 
-    # Create a root output directory: output/{verifier_to_use}/{current_datetime}
-    # current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
     pipeline_name = config["pipeline_args"].get("pretrained_model_name_or_path")
     cache_dir = config["pipeline_args"]["cache_dir"]
     root_dir = config["output_dir"]
@@ -449,22 +510,13 @@ def main():
 
     # Load the verifier model.
     verifier_args = config["verifier_args"]
-    verifier_name = verifier_args.get("name", "gemini")
-    refine_prompt_relpath = verifier_args.get("refine_prompt_relpath", "refine_prompt.txt")
-    reflexion_prompt_relpath = verifier_args.get("reflexion_prompt_relpath", "reflexion_prompt.txt")
-    verifier_prompt_relpath = verifier_args.get("verifier_prompt_relpath", "verifier_prompt.txt")
-    if verifier_name == "gemini":
-        from verifiers.gemini_verifier import GeminiVerifier
-
-        verifier = GeminiVerifier()
-    elif verifier_name == "openai":
-        from verifiers.openai_verifier import OpenAIVerifier
-
-        verifier = OpenAIVerifier(refine_prompt_relpath=refine_prompt_relpath, reflexion_prompt_relpath=reflexion_prompt_relpath, verifier_prompt_relpath=verifier_prompt_relpath)
+    verifier_name = verifier_args.get("name", "openai")
+    if verifier_name == "openai":
+        verifier = OpenAIVerifier(refine_prompt_relpath=verifier_args["refine_prompt_relpath"], reflexion_prompt_relpath=verifier_args["reflexion_prompt_relpath"], verifier_prompt_relpath=verifier_args["verifier_prompt_relpath"])
+    elif verifier_name == "nvila":
+        verifier, yes_id, no_id = load_model(model_name=verifier_args["model_name"], cache_dir=verifier_args["cache_dir"])
     else:
-        from verifiers.qwen_verifier import QwenVerifier
-
-        verifier = QwenVerifier(use_low_gpu_vram=verifier_args.get("use_low_gpu_vram", False))
+        raise ValueError(f"Verifier {verifier_name} not supported")
 
     # # Main loop: For each search round and each prompt, generate images, verify, and save artifacts.
     # generate from geneval gt
@@ -493,8 +545,6 @@ def main():
                     folder_data['images'].append(img_path)
             metadatas.append(folder_data)
 
-    # ### load nvila verifier for scoring
-    # load_model(model_name="Efficient-Large-Model/NVILA-Lite-2B-Verifier")
 
     # meta splits
     if args.end_index == -1:
@@ -503,8 +553,6 @@ def main():
         metadatas = metadatas[args.start_index:args.end_index]
 
     for index, metadata in tqdm(enumerate(metadatas), desc="Sampling data"):
-        # if index not in missindx:
-        #     continue
         metadatasave = metadata['metadata']
         images = metadata['images']
         # create output directory
@@ -516,7 +564,7 @@ def main():
         os.makedirs(sample_path_lastround, exist_ok=True)
         sample_path_best = os.path.join(outpath, "samples_best")
         os.makedirs(sample_path_best, exist_ok=True)
-        sample_path_bestround = os.path.join(outpath, "samples_bestround")
+        sample_path_bestround = os.path.join(outpath, "samples_path_bestround")
         os.makedirs(sample_path_bestround, exist_ok=True)
 
         # create middle img directory
@@ -527,12 +575,11 @@ def main():
         with open(os.path.join(outpath, "metadata.jsonl"), "w") as fp:
             json.dump(metadatasave[0], fp)
 
-        num_noises_to_sample = TOPK # this should be scaled like 2 ** search_round
-        updated_prompt = [metadatasave[0]['prompt']] * num_noises_to_sample
+        updated_prompt = [metadatasave[0]['prompt']] * search_branch
         original_prompt = metadatasave[0]['prompt']
 
         if use_reflection:
-            reflections = [""] * num_noises_to_sample
+            reflections = [""] * search_branch
         else:
             reflections = None
 
@@ -542,7 +589,7 @@ def main():
             print(f"\n=== Round: {round} ===")
             noises = get_noises(
                 max_seed=MAX_SEED,
-                num_samples=num_noises_to_sample,
+                num_samples=search_branch,
                 height=config["pipeline_args"]["height"],
                 width=config["pipeline_args"]["width"],
                 dtype=torch_dtype,
@@ -556,8 +603,7 @@ def main():
                 reflections=reflections,
                 search_round=round,
                 pipe=pipe,
-                verifier=verifier,
-                topk=num_noises_to_sample,
+                topk=search_branch,
                 root_dir=outpath,
                 config=config,
                 sample_path_lastround=sample_path_lastround,

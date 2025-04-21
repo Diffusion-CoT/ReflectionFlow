@@ -32,15 +32,6 @@ class Grading(BaseModel):
     emotional_or_thematic_resonance: Score
     overall_score: Score
 
-class Grading_geneval(BaseModel):
-    single_object: Score
-    two_object: Score
-    counting: Score
-    colors: Score
-    position: Score
-    color_attr: Score
-    overall_score: Score
-
 class Grading_single_object(BaseModel):
     object_completeness: Score
     detectability: Score
@@ -83,11 +74,6 @@ class OpenAIVerifier:
             api_key=os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY")
         )
         self.api_key = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY")
-        self.base_url = "https://boyuerichdata.chatgptten.com/v1/chat/completions"
-        # self.client = OpenAI(
-        #     base_url="https://boyuerichdata.chatgptten.com/v1/",
-        #     api_key=os.getenv("API_KEY")
-        # )
         self.system_instruction = load_verifier_prompt(os.path.join(script_dir, verifier_prompt_relpath))
         system_instruction_refine = load_verifier_prompt(os.path.join(script_dir, refine_prompt_relpath))
         system_instruction_reflexion = load_verifier_prompt(os.path.join(script_dir, reflexion_prompt_relpath))
@@ -252,49 +238,6 @@ class OpenAIVerifier:
 
         return inputs
     
-    # def refine_prompt(self, inputs, **kwargs) -> list[dict[str, float]]:
-    #     max_retries=10
-    #     retry_delay=5
-    #     def call_generate_content(parts):
-    #         headers = {
-    #             "Content-Type": "application/json",
-    #             "Authorization": f"Bearer {self.api_key}"
-    #         }
-    #         conversation = [self.system_message_refine, parts]
-    #         payload = {
-    #             "model": self.model_name,
-    #             "messages": conversation,
-    #             "temperature": 0.0
-    #         }
-    #         for attempt in range(max_retries):
-    #             try:
-    #                 response = requests.post(self.base_url, headers=headers, json=payload)
-    #                 # breakpoint()
-    #                 if response.status_code == 200:
-    #                     result_json = response.json()
-    #                     return result_json['choices'][0]['message']['content']
-    #                 else:
-    #                     print(f"API error (attempt {attempt+1}/{max_retries}): Status {response.status_code}")
-    #                     if attempt < max_retries - 1:
-    #                         time.sleep(retry_delay)
-    #             except Exception as e:
-    #                 print(f"Request error (attempt {attempt+1}/{max_retries}): {str(e)}")
-    #                 if attempt < max_retries - 1:
-    #                     time.sleep(retry_delay)
-    #         return None
-        
-    #     results = []
-    #     max_workers = min(len(inputs), 4)
-    #     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-    #         futures = [executor.submit(call_generate_content, group) for group in inputs]
-    #         for future in as_completed(futures):
-    #             try:
-    #                 results.append(future.result())
-    #             except Exception as e:
-    #                 # Handle exceptions as appropriate.
-    #                 print(f"An error occurred during API call: {e}")
-    #     return results
-
     def refine_prompt(self, inputs, **kwargs) -> list[dict[str, float]]:
         def call_generate_content(parts):
             conversation = [self.system_message_refine, parts]
