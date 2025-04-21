@@ -1,8 +1,8 @@
 {
     
     "pipeline_args": {
-        "pretrained_model_name_or_path": "stabilityai/stable-diffusion-3-medium-diffusers",
-        "cache_dir": "/ibex/user/zhaol0c/uniediting/ReflectionFlow-main/sd3medium",
+        "pretrained_model_name_or_path": "black-forest-labs/FLUX.1-dev",
+        "cache_dir": "FLUX_PATH",
         "torch_dtype": "bf16",
         "height": 1024,
         "width": 1024,
@@ -10,9 +10,14 @@
         "max_sequence_length": 512,
         "guidance_scale": 3.5,
         "num_inference_steps": 30,
-        "lora_path": "/ibex/user/zhaol0c/uniediting/training/fromzl/sd3_cond512_6k.safetensors"
+        "lora_path": "LORA_PATH"
     },
     "verifier_args": {
+        "name": "nvila",
+        "model_name": "Efficient-Large-Model/NVILA-Lite-2B-Verifier",
+        "cache_dir": "models/nvila"
+    },
+    "refine_args": {
         "name": "openai",
         "choice_of_metric": "overall_score",
         "max_new_tokens": 1280,
@@ -22,7 +27,8 @@
     },
     "search_args": {
         "search_method": "random",
-        "search_rounds": 4
+        "search_branch": 2,
+        "search_rounds": 16
     },
     "model": {
         "add_cond_attn": false,
@@ -30,7 +36,8 @@
         "union_cond_attn": true
     },
     "reflection_args": {
-        "run_reflection": true
+        "run_reflection": true,
+        "name": "openai"
     },
     "prompt_refiner_args": {
         "run_refinement": true

@@ -1,0 +1,3 @@
+model_name_or_path: path/infer/30000
+template: qwen2_vl
+finetuning_type: lora
