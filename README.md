@@ -57,7 +57,16 @@ conda activate ReflectionFlow
 pip install -r requirements.txt
 ```
 
-## 🚀 GenRef Dataset
+## 🚀 Model Zoo and Dataset
+| Dataset | Link |
+| --- | --- |
+| GenRef-CoT | [GenRef-CoT](https://huggingface.co/datasets/diffusion-cot/GenRef-CoT) |
+| GenRef-wds | [GenRef-wds](https://huggingface.co/datasets/diffusion-cot/GenRef-wds) |
+
+| Model | Link |
+| --- | --- |
+| ReflectionFlow | [ReflectionFlow](https://huggingface.co/diffusion-cot/experimental-models) |
+| Our Reflection Generation Model | [Our Reflection Generation Model](https://huggingface.co/diffusion-cot/reflection-models) |
 
 ### Introduction
 
