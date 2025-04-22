@@ -18,6 +18,7 @@ class ImageConditionWebDataset(IterableDataset):
         drop_text_prob: float = 0.1,
         drop_image_prob: float = 0.1,
         drop_reflection_prob: float = 0.2,
+        root_dir: str = "",
         split_ratios: dict = None,            # e.g. {"general":[.7,.3], "length":[.3,.7], …}
         training_stages: list = None,         # e.g. [0, 10000, 20000]
         return_pil_image: bool = False,

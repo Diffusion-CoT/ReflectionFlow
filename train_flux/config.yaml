@@ -1,6 +1,6 @@
 model_path: "black-forest-labs/FLUX.1-dev"
 dtype: "bfloat16"
-cache_dir: "/mnt/petrelfs/zhuole/.cache/huggingface/hub/"
+cache_dir: "/fsx/sayak/.cache"
 
 model:
   union_cond_attn: true
@@ -10,7 +10,7 @@ model:
 train:
   batch_size: 8
   accumulate_grad_batches: 1
-  dataloader_workers: 8
+  dataloader_workers: 2
   save_interval: 2000
   sample_interval: 2000
   max_steps: -1
@@ -23,25 +23,7 @@ train:
   resume_training_from_checkpoint_path: ""
   dataset:
     type: "img"
-    path: {
-      "general": [
-        "/mnt/petrelfs/zhuole/data/metadata_clean/flux_pro_detailed_prompt_pairs_train.json", # 35344
-        "/mnt/petrelfs/zhuole/data/metadata_clean/flux_pro_short_prompt_pairs_train.json", # 53551
-        "/mnt/petrelfs/zhuole/data/metadata_clean/id_prompt_pairs_train.json", # 41440
-        "/mnt/petrelfs/zhuole/data/metadata_clean/zl2m_v2_pairs_train.json" # 11513
-      ],
-      "length": [
-        "/mnt/petrelfs/zhuole/data/metadata_clean/flux_pro_pairs_train.json", # 78939
-        "/mnt/petrelfs/zhuole/data/metadata_clean/zl2m_prompt_pairs_train.json" # 16292
-      ],
-      "rule": [
-        "/mnt/petrelfs/zhuole/data/metadata_clean/geneval_pairs_train.json", # 129321
-        "/mnt/petrelfs/zhuole/data/metadata_clean/t2i_pairs_train.json" # 55388
-      ],
-      "editing": [
-        "/mnt/petrelfs/zhuole/data/metadata_clean/editing_pairs_train.json" # 616409
-      ]
-    }
+    path: "pipe:curl -s -f -L https://huggingface.co/datasets/diffusion-cot/GenRef-wds/resolve/main/genref_{0..2}.tar"
     split_ratios: {
       "general": [0.1, 0.3],
       "length": [0.1, 0.3],
