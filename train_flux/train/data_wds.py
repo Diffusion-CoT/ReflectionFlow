@@ -5,8 +5,24 @@ import numpy as np
 from PIL import Image
 
 import webdataset as wds
+import torch
 from torch.utils.data import IterableDataset, DataLoader
 import torchvision.transforms as T
+
+# Taken from https://github.com/tmbdev-archive/webdataset-imagenet-2/blob/01a4ab54307b9156c527d45b6b171f88623d2dec/imagenet.py#L65.
+def nodesplitter(src, group=None):
+    if torch.distributed.is_initialized():
+        if group is None:
+            group = torch.distributed.group.WORLD
+        rank = torch.distributed.get_rank(group=group)
+        size = torch.distributed.get_world_size(group=group)
+        count = 0
+        for i, item in enumerate(src):
+            if i % size == rank:
+                yield item
+                count += 1
+    else:
+        yield from src
 
 class ImageConditionWebDataset(IterableDataset):
     def __init__(
@@ -46,7 +62,7 @@ class ImageConditionWebDataset(IterableDataset):
             shards_pattern = glob.glob(shards_pattern) 
         for split in self.splits:
             ds = (
-                wds.WebDataset(shards_pattern, handler=wds.ignore_and_continue)
+                wds.WebDataset(shards_pattern, handler=wds.ignore_and_continue, nodesplitter=nodesplitter)
                   .shuffle(shuffle_buffer)
                   .decode("pil")  # good_image.jpg / bad_image.jpg → PIL
                   .to_tuple(

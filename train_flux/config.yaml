@@ -23,7 +23,7 @@ train:
   resume_training_from_checkpoint_path: ""
   dataset:
     type: "img"
-    path: "pipe:curl -s -f -L https://huggingface.co/datasets/diffusion-cot/GenRef-wds/resolve/main/genref_{0..2}.tar"
+    path: "pipe:curl -s -f -L https://huggingface.co/datasets/diffusion-cot/GenRef-wds/resolve/main/genref_{0..16}.tar"
     split_ratios: {
       "general": [0.1, 0.3],
       "length": [0.1, 0.3],
