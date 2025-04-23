@@ -107,25 +107,26 @@ And change the `name` of `reflection_args` in the config file to `ours`.
 ### Run
 First, please run `tts_t2i_baseline.py` to generate naive noise scaling results, with the commands:
 ```bash
+export OUTPUT_DIR=output_dir
 cd tts
-python tts_t2i_baseline.py --output_dir=OUTPUT_DIR --meta_path=geneval/evaluation_metadata.jsonl --pipeline_config_path=configs/flux.1_dev_gptscore.json 
+python tts_t2i_baseline.py --output_dir=$OUTPUT_DIR --meta_path=geneval/evaluation_metadata.jsonl --pipeline_config_path=configs/flux.1_dev_gptscore.json 
 ```
 
 Next, you can run the following command to generate the results of reflection tuning:
 ```bash
-python tts_t2i_noise_scaling.py --imgpath=OUTPUT_DIR --pipeline_config_path=CONFIG_PATH --output_dir=NEW_OUTPUT_DIR
+python tts_t2i_noise_scaling.py --imgpath=$OUTPUT_DIR --pipeline_config_path=CONFIG_PATH --output_dir=NEW_OUTPUT_DIR
 ```
 
 We also provide the code for only noise & prompt scaling:
 ```bash
-python tts_t2i_noise_prompt_scaling.py --output_dir=OUTPUT_DIR --meta_path=geneval/evaluation_metadata.jsonl --pipeline_config_path=configs/flux.1_dev_gptscore.json 
+python tts_t2i_noise_prompt_scaling.py --output_dir=$OUTPUT_DIR --meta_path=geneval/evaluation_metadata.jsonl --pipeline_config_path=configs/flux.1_dev_gptscore.json 
 ```
 
 ### NVILA Verifier Filter
 
 After generation, we provide the code using NVILA verifier to filter and get different numbers of sample results.
 ```bash
-python verifier_filter.py --imgpath=OUTPUT_DIR --pipeline_config_path=configs/flux.1_dev_nvilascore.json 
+python verifier_filter.py --imgpath=$OUTPUT_DIR --pipeline_config_path=configs/flux.1_dev_nvilascore.json 
 ```
 
 ## 🤝 Acknowledgement
