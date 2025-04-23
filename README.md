@@ -57,16 +57,20 @@ conda activate ReflectionFlow
 pip install -r requirements.txt
 ```
 
-## 🚀 Model Zoo and Dataset
-| Dataset | Link |
-| --- | --- |
-| GenRef-CoT | [GenRef-CoT](https://huggingface.co/datasets/diffusion-cot/GenRef-CoT) |
-| GenRef-wds | [GenRef-wds](https://huggingface.co/datasets/diffusion-cot/GenRef-wds) |
+## 🚀 Models and Datasets
 
-| Model | Link |
-| --- | --- |
-| ReflectionFlow | [ReflectionFlow](https://huggingface.co/diffusion-cot/experimental-models) |
-| Our Reflection Generation Model | [Our Reflection Generation Model](https://huggingface.co/diffusion-cot/reflection-models) |
+### Datasets
+| Name | Description | Link |
+| --- | --- | --- |
+| GenRef-wds | WebDataset format of full GenRef | [HuggingFace](https://huggingface.co/datasets/diffusion-cot/GenRef-wds) |
+| GenRef-CoT | Chain-of-Thought reflection dataset | [HuggingFace](https://huggingface.co/datasets/diffusion-cot/GenRef-CoT) |
+
+### Models
+| Name | Description | Link |
+| --- | --- | --- |
+| ReflectionFlow | Main FLUX-based corrector model | [HuggingFace](https://huggingface.co/diffusion-cot/FLUX-Corrector) |
+| Reflection Generator | Qwen-based reflection generator | [HuggingFace](https://huggingface.co/diffusion-cot/Reflection-Generator) |
+| Image Verifier | Qwen-based image verifier | [HuggingFace](https://huggingface.co/diffusion-cot/Image-Verifier) |
 
 
 ## 🤖 Reflection Tuning
