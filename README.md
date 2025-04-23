@@ -1,5 +1,5 @@
 <div align="center" style="font-family: charter;">
-<h1><i>From Reflection to Perfection:</i>:</br>Scaling Inference-Time Optimization for Text-to-Image Diffusion Models via Reflection Tuning</h1>
+<h1><i>From Reflection to Perfection:</i></br>Scaling Inference-Time Optimization for Text-to-Image Diffusion Models via Reflection Tuning</h1>
 
 
 
@@ -41,7 +41,7 @@
 ## :fire: News
 
 - [2025/4/23] Release [paper](https://arxiv.org/abs/2504.16080).
-- [2025/4/20] Release GenRef dataset, as well as the training and evaluation code.
+- [2025/4/20] Release GenRef dataset, model checkpoints, as well as the training and inference code.
 
 ## ✨ Quick Start  
 
