@@ -3,9 +3,9 @@
 
 
 
-<a href="tmp" target="_blank">
+<a href="https://arxiv.org/abs/2504.16080" target="_blank">
     <img alt="arXiv" src="https://img.shields.io/badge/arXiv-ReflectionFlow-red?logo=arxiv" height="20" /></a>
-<a href="https://liangbingzhao.github.io/reflection2perfection/" target="_blank">
+<a href="https://diffusion-cot.github.io/reflection2perfection/" target="_blank">
     <img alt="Website" src="https://img.shields.io/badge/🌎_Website-ReflectionFlow-blue.svg" height="20" /></a>
 <a href="https://huggingface.co/collections/diffusion-cot/reflectionflow-release-6803e14352b1b13a16aeda44" target="_blank">
     <img alt="HF Dataset: ReflectionFlow" src="https://img.shields.io/badge/%F0%9F%A4%97%20_Hugging Face-ReflectionFlow-ffc107?color=ffc107&logoColor=white" height="20" /></a>
@@ -40,8 +40,8 @@
 
 ## :fire: News
 
-- [2025/4/??] Release [paper](tmp).
-- [2025/4/??] Release GenRef dataset, as well as the training and evaluation code.
+- [2025/4/23] Release [paper](https://arxiv.org/abs/2504.16080).
+- [2025/4/20] Release GenRef dataset, as well as the training and evaluation code.
 
 ## ✨ Quick Start  
 
@@ -134,8 +134,16 @@ We are deeply grateful for the following GitHub repositories, as their valuable 
 
 ## ✏️ Citation
 
-If you find ReflectionFlow useful for your your research and applications, please cite using this BibTeX:
+If you find ReflectionFlow useful for your research and applications, please cite using this BibTeX:
 
 ```bibtex
-tmp
+@misc{zhuo2025reflectionperfectionscalinginferencetime,
+      title={From Reflection to Perfection: Scaling Inference-Time Optimization for Text-to-Image Diffusion Models via Reflection Tuning}, 
+      author={Le Zhuo and Liangbing Zhao and Sayak Paul and Yue Liao and Renrui Zhang and Yi Xin and Peng Gao and Mohamed Elhoseiny and Hongsheng Li},
+      year={2025},
+      eprint={2504.16080},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2504.16080}, 
+}
 ```
