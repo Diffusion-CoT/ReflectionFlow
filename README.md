@@ -88,6 +88,9 @@ The config file is `config.yaml`. Run the following command for training:
 bash train_flux/train.sh
 ```
 
+We tested our implementation on single node of 8 80GB A100s and H100s. We acknowledge that there are opportunities
+for optimization, but we didn't prioritize them in this release.
+
 >[!NOTE]
 > Validation during training is yet to be implemented.
 
