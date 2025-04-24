@@ -8,7 +8,6 @@ import time
 from diffusers.utils.logging import set_verbosity_error
 set_verbosity_error()
 
-# from .data import ImageConditionDataset
 from .data_wds import ImageConditionWebDataset
 from .model import OminiModel
 from .callbacks import TrainingCallback
@@ -74,32 +73,37 @@ def main():
             split_ratios=training_config["dataset"]["split_ratios"],
             training_stages=training_config["dataset"]["training_stages"],
         )
-        # val_dataset = ImageConditionDataset(
-        #     training_config["dataset"]["val_path"],
-        #     condition_size=training_config["dataset"]["condition_size"],
-        #     target_size=training_config["dataset"]["target_size"],
-        #     condition_type=training_config["condition_type"],   
-        #     root_dir=training_config["dataset"]["val_root_dir"],
-        #     drop_text_prob=0,
-        #     drop_image_prob=0,
-        #     drop_reflection_prob=0,
-        # )
+        if "val_path" in training_config["dataset"]:
+            val_dataset = ImageConditionWebDataset(
+                training_config["dataset"]["val_path"],
+                condition_size=training_config["dataset"]["condition_size"],
+                target_size=training_config["dataset"]["target_size"],
+                condition_type=training_config["condition_type"],   
+                root_dir=training_config["dataset"]["val_root_dir"],
+                drop_text_prob=0,
+                drop_image_prob=0,
+                drop_reflection_prob=0,
+                shuffle_buffer=0,
+            )
+        else:
+            val_dataset = None
     else:
         raise NotImplementedError
 
-    # print("Dataset length:", len(dataset))
     train_loader = DataLoader(
         dataset,
         batch_size=training_config["batch_size"],
-        # shuffle=True,
         num_workers=training_config["dataloader_workers"],
     )
-    # val_loader = DataLoader(
-    #     val_dataset,
-    #     batch_size=1,
-    #     shuffle=False,
-    #     num_workers=0
-    # )
+    if val_dataset is not None:
+        val_loader = DataLoader(
+            val_dataset,
+            batch_size=1,
+            shuffle=False,
+            num_workers=0
+        )
+    else:
+        val_loader = None
 
     # Try add resume training
     lora_path = None
@@ -174,7 +178,7 @@ def main():
             yaml.dump(config, f)
 
     # Start training
-    trainer.fit(trainable_model, train_loader, None)
+    trainer.fit(trainable_model, train_loader, val_loader)
 
 
 if __name__ == "__main__":
