@@ -68,7 +68,7 @@ pip install -r requirements.txt
 ### Models
 | Name | Description | Link |
 | --- | --- | --- |
-| ReflectionFlow | Main FLUX-based corrector model | [HuggingFace](https://huggingface.co/diffusion-cot/FLUX-Corrector) |
+| FLUX Corrector | Main FLUX-based corrector model | [HuggingFace](https://huggingface.co/diffusion-cot/FLUX-Corrector) |
 | Reflection Generator | Qwen-based reflection generator | [HuggingFace](https://huggingface.co/diffusion-cot/Reflection-Generator) |
 | Image Verifier | Qwen-based image verifier | [HuggingFace](https://huggingface.co/diffusion-cot/Image-Verifier) |
 
@@ -84,13 +84,13 @@ When using local paths, set `path` under `[train][dataset]` to a glob pattern: `
 change the number of tars you want to stream for easier debugging. Just change `genref_{0..208}.tar` to something
 like `genref_{0..4}.tar`, depending on the number of shards you want to use.
 
-The config file is `config.yaml`. Run the following command for training:
+Run the following command for training the FLUX Corrector:
 
 ```bash
 bash train_flux/train.sh
 ```
 
-We tested our implementation on single node of 8 80GB A100s and H100s. We acknowledge that there are opportunities
+We tested our implementation on a single node of 8 80GB A100s and H100s. We acknowledge that there are opportunities
 for optimization, but we didn't prioritize them in this release.
 
 >[!NOTE]
@@ -102,7 +102,7 @@ for optimization, but we didn't prioritize them in this release.
 We provide the code for the inference time scaling of our reflection-tuned models. Currently, we support:
 * GPT-4o as verifier, reflection generator, and prompt refiner.
 * [NVILA-2B](https://huggingface.co/Efficient-Large-Model/NVILA-Lite-2B-Verifier) verifier from SANA.
-* Our fine-tuned Qwen2.5-VL-7B reflection generator.
+* Our [Reflection Generator](https://huggingface.co/diffusion-cot/Reflection-Generator).
 
 ### Setup
 First, you need to set up with the following command lines:
