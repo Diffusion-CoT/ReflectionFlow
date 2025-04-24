@@ -44,7 +44,7 @@ class TrainingCallback(L.Callback):
         self.total_steps += 1
         
         # Update split ratios
-        trainer.train_dataloader.dataset._update_split_ratios(self.total_steps)
+        trainer.train_dataloader.dataset._update_split_ratios()
         
         # Print training progress every n steps
         if self.use_wandb:

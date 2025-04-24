@@ -75,10 +75,21 @@ pip install -r requirements.txt
 
 ## 🤖 Reflection Tuning
 
+[`train_flux/config.yaml`](./train_flux/config.yaml) exposes all the arguments to control
+all the training-time configurations. 
+
+First, get the data. You can either download the `webdataset` shards from [`diffusion-cot/GenRef-wds`](https://huggingface.co/datasets/diffusion-cot/GenRef-wds) or directly pass URLs.
+
+When using local paths, set `path` under `[train][dataset]` to a glob pattern: `DATA_DIR/genref_*.tar`. The current `config.yaml` configures training to stream from the `diffusion-cot/GenRef-wds` repository.
+
 The config file is `config.yaml`. Run the following command for training:
+
 ```bash
-bash train/script/train_subject.sh
+bash train_flux/train.sh
 ```
+
+>[!NOTE]
+> Validation during training is yet to be implemented.
 
 ## ⚡ Inference Time Scaling
 

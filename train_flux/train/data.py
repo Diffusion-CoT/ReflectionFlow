@@ -1,237 +1,229 @@
-from PIL import Image
-import os
-import json
 import math
-import pyarrow.parquet as pq
-import numpy as np
-import glob
-import io
-from torch.utils.data import Dataset
-import torchvision.transforms as T
 import random
-from typing import List, Dict
+import glob
+import numpy as np
+from PIL import Image
 
-def is_absolute_path(path):
-    return os.path.isabs(path)
+import webdataset as wds
+import torch
+from torch.utils.data import IterableDataset, DataLoader
+import torchvision.transforms as T
 
+# Taken from https://github.com/tmbdev-archive/webdataset-imagenet-2/blob/01a4ab54307b9156c527d45b6b171f88623d2dec/imagenet.py#L65.
+def nodesplitter(src, group=None):
+    if torch.distributed.is_initialized():
+        if group is None:
+            group = torch.distributed.group.WORLD
+        rank = torch.distributed.get_rank(group=group)
+        size = torch.distributed.get_world_size(group=group)
+        count = 0
+        for i, item in enumerate(src):
+            if i % size == rank:
+                yield item
+                count += 1
+    else:
+        yield from src
 
-class ImageConditionDataset(Dataset):
+class ImageConditionWebDataset(IterableDataset):
     def __init__(
         self,
-        data_path: Dict[str, List[str]] = None,
+        shards_pattern: str,
         condition_size: int = 1024,
         target_size: int = 1024,
         condition_type: str = "cot",
         drop_text_prob: float = 0.1,
         drop_image_prob: float = 0.1,
         drop_reflection_prob: float = 0.2,
-        return_pil_image: bool = False,
         root_dir: str = "",
-        split_ratios: Dict[str, List[float]] = None,
-        training_stages: List[int] = None,
+        split_ratios: dict = None,            # e.g. {"general":[.7,.3], "length":[.3,.7], …}
+        training_stages: list = None,         # e.g. [0, 10000, 20000]
+        return_pil_image: bool = False,
+        shuffle_buffer: int = 1000,
     ):
-        self.condition_size = condition_size
-        self.target_size = target_size
-        self.condition_type = condition_type
-        self.drop_text_prob = drop_text_prob
-        self.drop_image_prob = drop_image_prob
+        super().__init__()
+        self.condition_size       = condition_size
+        self.target_size          = target_size
+        self.condition_type       = condition_type
+        self.drop_text_prob       = drop_text_prob
+        self.drop_image_prob      = drop_image_prob
         self.drop_reflection_prob = drop_reflection_prob
-        self.return_pil_image = return_pil_image
-        self.root_dir = root_dir
-        self.to_tensor = T.ToTensor()
+        self.return_pil_image     = return_pil_image
 
-        # Build dataset for each split.
-        self.base_dataset = {}
-        for split, paths in data_path.items():
-            if not isinstance(paths, list):
-                paths = [paths]
-            self.base_dataset[split] = []
-            for file in paths:
-                data = self._load_data_from_file(file)
-                self.base_dataset[split].extend(data)
-                
-        # Set up the training stage and split ratios.
-        self.training_stages = training_stages
-        self.splits = list(self.base_dataset.keys())
+        # prepare WebDataset pipelines per subset
+        self.splits = list(split_ratios.keys())
         self.all_split_ratios = split_ratios
-        if split_ratios is not None:
-            self.split_ratios = {cat: split_ratios[cat][0] for cat in self.splits}
-        else:
-            self.split_ratios = {cat: 1 / len(self.splits) for cat in self.splits}
-    
-    def _update_split_ratios(self, current_iter):
-        # Check if current iteration is beyond the last stage
-        if current_iter >= self.training_stages[-1]:
-            # Use the last split ratio directly
-            for split in self.splits:
-                self.split_ratios[split] = self.all_split_ratios[split][-1]
-            # print(f"Using final split ratios: {self.split_ratios} at iteration {current_iter}")
-            return
-            
-        # Find current stage index
-        current_stage_idx = 0
-        for i, stage_end in enumerate(self.training_stages[1:], 0):
-            if current_iter < stage_end:
-                break
-            current_stage_idx = i
-        
-        # Calculate stage boundaries
-        stage_start = self.training_stages[current_stage_idx]
-        stage_end = self.training_stages[current_stage_idx + 1]
-        progress = (current_iter - stage_start) / (stage_end - stage_start)
-        
-        # Update all split ratios at once
+        # start with first stage’s ratios
+        self.split_ratios = {s: split_ratios[s][0] for s in self.splits}
+        self.training_stages = training_stages or [0]
+
+        # one independent pipeline for each subset
+        self.datasets = {}
+        if "https://" not in shards_pattern:
+            shards_pattern = glob.glob(shards_pattern) 
         for split in self.splits:
-            start_ratio = self.all_split_ratios[split][current_stage_idx]
-            end_ratio = self.all_split_ratios[split][current_stage_idx + 1]
-            self.split_ratios[split] = start_ratio + progress * (end_ratio - start_ratio)
-            
-        # print(f"Updated split ratios: {self.split_ratios} at iteration {current_iter}")
-        
-    def _load_data_from_file(self, file_path):
-        """Helper method to load data from a file based on its extension."""
-        if file_path.endswith(".json"):
-            with open(file_path, "r") as f:
-                return json.load(f)
-        elif file_path.endswith(".jsonl"):
-            data = []
-            with open(file_path, "r") as f:
-                for line in f:
-                    if line.strip():
-                        data.append(json.loads(line))
-            return data
-        elif file_path.endswith(".parquet"):
-            table = pq.read_table(file_path)
-            df = table.to_pandas()
-            return df.to_dict("records")
-        elif os.path.isdir(file_path):
-            data = []
-            parquet_files = glob.glob(os.path.join(file_path, "*.parquet"))
-            print(f"Loading {len(parquet_files)} parquet files from {file_path}")
-            # Use ParquetDataset for efficient loading of multiple parquet files
-            dataset = pq.ParquetDataset(parquet_files)
-            table = dataset.read()
-            df = table.to_pandas()
-            return df.to_dict("records")
-        else:
-            raise ValueError(f"Unsupported file type or path: {file_path}")
+            ds = (
+                wds.WebDataset(shards_pattern, handler=wds.ignore_and_continue, nodesplitter=nodesplitter)
+                  .shuffle(shuffle_buffer)
+                  .decode("pil")  # good_image.jpg / bad_image.jpg → PIL
+                  .to_tuple(
+                      "good_image.jpg",
+                      "bad_image.jpg",
+                      "reflection.txt",
+                      "prompt.txt",
+                      "subset.txt",
+                  )
+                  # keep only records whose subset matches this split
+                  .select(lambda sample: sample[4] == split)
+            )
+            self.datasets[split] = ds
 
-    def __len__(self):
-        # Total length is the sum of samples in all splits.
-        return sum(len(samples) for samples in self.base_dataset.values())
+        # create one iterator per subset
+        self.iters = {s: iter(ds) for s, ds in self.datasets.items()}
+        self.to_tensor = T.ToTensor()
+        self.iteration = 0
 
-    def _sample_split(self):
-        """Randomly sample a split based on the provided ratios."""
-        return random.choices(self.splits, weights=[self.split_ratios[split] for split in self.splits], k=1)[0]
+    def _update_split_ratios(self):
+        itr = self.iteration
+        stages = self.training_stages
+        # beyond last => use last ratios
+        if itr >= stages[-1]:
+            for s in self.splits:
+                self.split_ratios[s] = self.all_split_ratios[s][-1]
+            return
 
-    def __getitem__(self, idx):
-        """Get an item by sampling a split first and then a random item within that split."""
-        split = self._sample_split()
-        split_data = self.base_dataset[split]
-        if not split_data:
-            raise ValueError(f"No data available in split: {split}")
-        idx = random.randint(0, len(split_data) - 1)
-        item = split_data[idx]
+        # find current stage index
+        idx = max(i for i, t in enumerate(stages) if itr >= t)
+        next_idx = min(idx+1, len(stages)-1)
+        start, end = stages[idx], stages[next_idx]
+        progress = (itr - start) / (end - start) if end>start else 1.0
 
-        if "good_image" in item:
-            good_image_path = os.path.join(self.root_dir, item["good_image"])
-            good_image = Image.open(good_image_path)
-        elif "edited_img.bytes" in item:
-            good_image = Image.open(io.BytesIO(item["edited_img.bytes"]))
-        else:
-            raise ValueError(f"No good image found in item: {item}")
-        if "bad_image" in item:
-            bad_image_path = os.path.join(self.root_dir, item["bad_image"])
-            bad_image = Image.open(bad_image_path)
-        elif "src_img.bytes" in item:
-            bad_image = Image.open(io.BytesIO(item["src_img.bytes"]))
-        else:
-            raise ValueError(f"No good or bad image found in item: {item}")
-        
-        # Convert images to RGB
-        good_image = good_image.convert("RGB")
-        bad_image = bad_image.convert("RGB")
-        
-        # First resize bad image to match good image dimensions to maintain pixel correspondence
-        good_w, good_h = good_image.size
-        bad_w, bad_h = bad_image.size
-        
-        # Resize bad image to match good image dimensions
-        bad_image = bad_image.resize((good_w, good_h), Image.BICUBIC)
-        
-        # Now both images have the same dimensions
-        # Resize the shorter edge to target_size while maintaining aspect ratio
-        ratio = self.target_size / min(good_w, good_h)
-        
-        new_w = math.ceil(good_w * ratio)
-        new_h = math.ceil(good_h * ratio)
-        
-        # Resize both images to the same dimensions
-        good_image = good_image.resize((new_w, new_h), Image.BICUBIC)
-        bad_image = bad_image.resize((new_w, new_h), Image.BICUBIC)
-        
-        # Crop both images to exactly target_size x target_size using the same crop coordinates
-        if new_w > self.target_size or new_h > self.target_size:
-            left = random.randint(0, new_w - self.target_size)
-            top = random.randint(0, new_h - self.target_size)
-            
-            # Apply the same crop to both images to maintain pixel correspondence
-            good_image = good_image.crop((left, top, left + self.target_size, top + self.target_size))
-            bad_image = bad_image.crop((left, top, left + self.target_size, top + self.target_size))
-        
-        # Finally, resize bad_image to condition_size
-        bad_image = bad_image.resize((self.condition_size, self.condition_size), Image.BICUBIC)
-        
-        if "prompt" in item:
-            original_prompt = item["prompt"]
-        elif "caption" in item:
-            original_prompt = item["caption"]
-        else:
-            raise ValueError(f"No prompt found in item: {item}")
-        
-        if "reflection_dict" in item:
-            # Extract reflection from reflection_dict
-            reflection_dict = item["reflection_dict"]
-            # Get all available keys in the reflection_dict
-            available_keys = list(reflection_dict.keys())
-            # Randomly select one key
-            random_key = random.choice(available_keys)
-            # Get the reflection text from the selected key
-            reflection = reflection_dict[random_key]
-        elif "instruction" in item:
-            reflection = item["instruction"]
-        elif "reflection" in item:
-            reflection = item["reflection"]
-        elif "reflection_prompt" in item:
-            reflection = item["reflection_prompt"]
-        elif "edited_prompt_list" in item:
-            reflection = item["edited_prompt_list"][-1]
-        else:
-            raise ValueError(f"No reflection found in item: {item}")
-        
-        # Randomly drop text or image
-        drop_text = random.random() < self.drop_text_prob
-        drop_image = random.random() < self.drop_image_prob
-        drop_image = drop_image and split != "editing" # don't drop image for editing split
-        drop_reflection = random.random() < self.drop_reflection_prob
-        drop_reflection = drop_reflection or len(reflection) < 5 # also drop reflection if it's too short
-        if drop_reflection or drop_image:
-            description = f"{original_prompt}"
-        else:
-            description = f"{original_prompt} [Reflexion] {reflection}"
-        if drop_text:
-            description = ""
-        if drop_image:
-            bad_image = Image.new(
-                "RGB", (self.condition_size, self.condition_size), (0, 0, 0)
+        for s in self.splits:
+            r0 = self.all_split_ratios[s][idx]
+            r1 = self.all_split_ratios[s][next_idx]
+            self.split_ratios[s] = r0 + progress*(r1-r0)
+
+    def _preprocess_pair(self, good: Image.Image, bad: Image.Image):
+        # match bad → good dims
+        gw, gh = good.size
+        bad = bad.resize((gw, gh), Image.BICUBIC)
+        # scale shorter edge → target_size
+        ratio = self.target_size / min(gw, gh)
+        nw, nh = math.ceil(gw*ratio), math.ceil(gh*ratio)
+        good = good.resize((nw, nh), Image.BICUBIC)
+        bad  = bad.resize((nw, nh), Image.BICUBIC)
+
+        # same random crop
+        if nw>self.target_size or nh>self.target_size:
+            left = random.randint(0, nw-self.target_size)
+            top  = random.randint(0, nh-self.target_size)
+            box  = (left, top, left+self.target_size, top+self.target_size)
+            good = good.crop(box)
+            bad  = bad.crop(box)
+
+        # final resize bad → condition_size
+        bad = bad.resize((self.condition_size, self.condition_size), Image.BICUBIC)
+        return good, bad
+
+    def __iter__(self):
+        while True:
+            # 1) update dynamic ratios
+            self._update_split_ratios()
+
+            # 2) pick a split by current weights
+            split = random.choices(
+                self.splits,
+                weights=[self.split_ratios[s] for s in self.splits],
+                k=1,
+            )[0]
+
+            # 3) pull next sample (re‑reset iterator on exhaustion)
+            try:
+                good, bad, ref_bytes, prom_bytes, sub_bytes = next(self.iters[split])
+            except StopIteration:
+                self.iters[split] = iter(self.datasets[split])
+                good, bad, ref_bytes, prom_bytes, sub_bytes = next(self.iters[split])
+
+            # decode text
+            reflection = ref_bytes
+            prompt     = prom_bytes
+            subset     = sub_bytes
+
+            # convert to RGB
+            good = good.convert("RGB")
+            bad  = bad.convert("RGB")
+
+            # 4) apply your resize/crop logic
+            good, bad = self._preprocess_pair(good, bad)
+
+            # 5) decide drops
+            drop_text       = random.random() < self.drop_text_prob
+            drop_image_flag = random.random() < self.drop_image_prob and subset!="editing"
+            drop_reflection = (
+                random.random() < self.drop_reflection_prob
+                or len(reflection)<5
             )
 
-        return {
-            "image": self.to_tensor(good_image),
-            "original_prompt": original_prompt,
-            "condition": self.to_tensor(bad_image),
-            "condition_type": self.condition_type,
-            "description": description,
-            "position_delta": np.array([0, -self.condition_size // 16]),
-            **({"pil_image": [good_image, bad_image]} if self.return_pil_image else {}),
-        }
+            if drop_reflection or drop_image_flag:
+                description = prompt
+            else:
+                description = f"{prompt} [Reflexion] {reflection}"
+            if drop_text:
+                description = ""
+            if drop_image_flag:
+                # black out condition
+                bad = Image.new("RGB", (self.condition_size, self.condition_size), (0,0,0))
+
+            # 6) to tensors
+            image     = self.to_tensor(good)
+            condition = self.to_tensor(bad)
+
+            out = {
+                "image":           image,
+                "condition":       condition,
+                "original_prompt": prompt,
+                "condition_type":  self.condition_type,
+                "description":     description,
+                "position_delta":  np.array([0, -self.condition_size//16]),
+                "subset": subset
+            }
+            if self.return_pil_image:
+                out["pil_image"] = [good, bad]
+
+            self.iteration += 1
+            yield out
+
+# usage:
+if __name__ == "__main__":
+
+    split_ratios = {
+        "general": [0.8, 0.6, 0.4],
+        "length":  [0.1, 0.2, 0.3],
+        "rule":    [0.1, 0.2, 0.3],
+        "editing": [0.0, 0.0, 0.0],
+    }
+    training_stages = [0, 10000, 20000]
+
+    # local path should be provided as 
+    # shards_pattern = "DIR_WHERE_GenRef-wds_IS_DOWNLOADED/*.tar"
+    shards_pattern = "pipe:curl -s -f -L https://huggingface.co/datasets/diffusion-cot/GenRef-wds/resolve/main/genref_{0..2}.tar"
+    dataset = ImageConditionWebDataset(
+        shards_pattern=shards_pattern,
+        condition_size=1024,
+        target_size=1024,
+        condition_type="cot",
+        drop_text_prob=0.1,
+        drop_image_prob=0.1,
+        drop_reflection_prob=0.2,
+        split_ratios=split_ratios,
+        training_stages=training_stages,
+        return_pil_image=False,
+    )
+
+    loader = DataLoader(dataset, batch_size=8, num_workers=4)
+
+    # iterate:
+    for batch in loader:
+        print(batch.keys())
+        print(batch["image"].size())
+        print(batch["condition"].size())
+        break
