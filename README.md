@@ -80,7 +80,9 @@ all the training-time configurations.
 
 First, get the data. You can either download the `webdataset` shards from [`diffusion-cot/GenRef-wds`](https://huggingface.co/datasets/diffusion-cot/GenRef-wds) or directly pass URLs.
 
-When using local paths, set `path` under `[train][dataset]` to a glob pattern: `DATA_DIR/genref_*.tar`. The current `config.yaml` configures training to stream from the `diffusion-cot/GenRef-wds` repository.
+When using local paths, set `path` under `[train][dataset]` to a glob pattern: `DATA_DIR/genref_*.tar`. The current `config.yaml` configures training to stream from the `diffusion-cot/GenRef-wds` repository. You can even
+change the number of tars you want to stream for easier debugging. Just change `genref_{0..208}.tar` to something
+like `genref_{0..4}.tar`, depending on the number of shards you want to use.
 
 The config file is `config.yaml`. Run the following command for training:
 
