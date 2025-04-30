@@ -125,12 +125,12 @@ First, please run `tts_t2i_baseline.py` to generate naive noise scaling results,
 ```bash
 export OUTPUT_DIR=output_dir
 cd tts
-python tts_t2i_baseline.py --output_dir=$OUTPUT_DIR --meta_path=geneval/evaluation_metadata.jsonl --pipeline_config_path=configs/flux.1_dev_gptscore.json 
+python tts_t2i_noise_scaling.py --output_dir=$OUTPUT_DIR --meta_path=geneval/evaluation_metadata.jsonl --pipeline_config_path=configs/flux.1_dev_gptscore.json 
 ```
 
 Next, you can run the following command to generate the results of reflection tuning:
 ```bash
-python tts_t2i_noise_scaling.py --imgpath=$OUTPUT_DIR --pipeline_config_path=CONFIG_PATH --output_dir=NEW_OUTPUT_DIR
+python tts_reflectionflow.py --imgpath=$OUTPUT_DIR --pipeline_config_path=CONFIG_PATH --output_dir=NEW_OUTPUT_DIR
 ```
 
 We also provide the code for only noise & prompt scaling:
