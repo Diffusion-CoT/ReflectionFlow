@@ -66,11 +66,11 @@ pip install -r requirements.txt
 | GenRef-CoT | Chain-of-Thought reflection dataset | [HuggingFace](https://huggingface.co/datasets/diffusion-cot/GenRef-CoT) |
 
 ### Models
-| Name | Description | Link |
-| --- | --- | --- |
-| FLUX Corrector | Main FLUX-based corrector model | [HuggingFace](https://huggingface.co/diffusion-cot/FLUX-Corrector) |
-| Reflection Generator | Qwen-based reflection generator | [HuggingFace](https://huggingface.co/diffusion-cot/Reflection-Generator) |
-| Image Verifier | Qwen-based image verifier | [HuggingFace](https://huggingface.co/diffusion-cot/Image-Verifier) |
+| Name | Description | Finetune Data | Link |
+| --- | --- | --- | --- |
+| FLUX Corrector | Main FLUX-based "text image -> image" model | GenRef-wds | [HuggingFace](https://huggingface.co/diffusion-cot/FLUX-Corrector) |
+| Reflection Generator | Qwen-based reflection generator | GenRef-CoT | [HuggingFace](https://huggingface.co/diffusion-cot/Reflection-Generator) |
+| Image Verifier | Qwen-based image verifier | GenRef-CoT  | [HuggingFace](https://huggingface.co/diffusion-cot/Image-Verifier) |
 
 
 ## 🤖 Reflection Tuning
