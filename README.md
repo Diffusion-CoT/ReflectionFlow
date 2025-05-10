@@ -102,17 +102,18 @@ for optimization, but we didn't prioritize them in this release.
 We provide the code for the inference time scaling of our reflection-tuned models. Currently, we support:
 * GPT-4o as verifier, reflection generator, and prompt refiner.
 * [NVILA-2B](https://huggingface.co/Efficient-Large-Model/NVILA-Lite-2B-Verifier) verifier from SANA.
-* Our [Reflection Generator](https://huggingface.co/diffusion-cot/Reflection-Generator).
+* Our [reflection generator](https://huggingface.co/diffusion-cot/Reflection-Generator).
 
 ### Setup
-First, you need to set up with the following command lines:
+First, you need to set up the following:
+
 ```bash
 export OPENAI_API_KEY=your_api_key
 # if you want to use NVILA as verifier
 pip install transformers==4.46
 pip install git+https://github.com/bfshi/scaling_on_scales.git
 ```
-Then you need to set up the FLUX_PATH and LORA_PATH in the config file of `tts/config`.
+Then you need to set up the `FLUX_PATH` and `LORA_PATH` in the config file of `tts/config`.
 
 If you want to use our finetuned reflection generator, you need to first install [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). Then download
 the model from [here](https://huggingface.co/diffusion-cot/reward-models/tree/main) and change the `model_name_or_path` in the config file of
