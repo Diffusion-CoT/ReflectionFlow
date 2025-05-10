@@ -116,7 +116,7 @@ pip install git+https://github.com/bfshi/scaling_on_scales.git
 Then you need to set up the `FLUX_PATH` and `LORA_PATH` in the config file of `tts/config`.
 
 If you want to use our finetuned reflection generator, you need to first install [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). Then download
-the model from [here](https://huggingface.co/diffusion-cot/reward-models/tree/main) and change the `model_name_or_path` in the config file of
+the model from [here](https://huggingface.co/diffusion-cot/Reflection-Generator) and change the `model_name_or_path` in the config file of
 `tts/config/our_reflectionmodel.yaml`. Next, host the model with:
 
 ```bash
