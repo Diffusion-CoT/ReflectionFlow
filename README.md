@@ -113,11 +113,11 @@ export OPENAI_API_KEY=your_api_key
 pip install transformers==4.46
 pip install git+https://github.com/bfshi/scaling_on_scales.git
 ```
-Then you need to set up the `FLUX_PATH` and `LORA_PATH` in the config file of `tts/config`.
+Then you need to set up the `FLUX_PATH` and `LORA_PATH` in the config file of `tts/config`. The `FLUX_PATH` is what you set for `cache_dir` when using diffusers `from_pretrained` function. And the `LORA_PATH` is our [corrector model](https://huggingface.co/diffusion-cot/FLUX-Corrector) path.
 
 If you want to use our finetuned reflection generator, you need to first install [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). Then download
 the model from [here](https://huggingface.co/diffusion-cot/Reflection-Generator) and change the `model_name_or_path` in the config file of
-`tts/config/our_reflectionmodel.yaml`. Next, host the model with:
+`tts/config/our_reflectionmodel.yaml` to the reflection generator path. To be specific, the path should be like `pathtofolder/infer/30000`. Next, host the model with:
 
 ```bash
 API_PORT=8001 CUDA_VISIBLE_DEVICES=0 llamafactory-cli api configs/our_reflectionmodel.yaml
@@ -134,7 +134,7 @@ python tts_t2i_noise_scaling.py --output_dir=$OUTPUT_DIR --meta_path=geneval/eva
 
 Next, you can run the following command to generate the results of reflection tuning:
 ```bash
-python tts_reflectionflow.py --imgpath=$OUTPUT_DIR --pipeline_config_path=CONFIG_PATH --output_dir=NEW_OUTPUT_DIR
+python tts_reflectionflow.py --imgpath=$OUTPUT_DIR --pipeline_config_path=configs/flux.1_dev_nvilascore.json --output_dir=NEW_OUTPUT_DIR
 ```
 
 We also provide the code for only noise & prompt scaling:
