@@ -113,11 +113,20 @@ export OPENAI_API_KEY=your_api_key
 pip install transformers==4.46
 pip install git+https://github.com/bfshi/scaling_on_scales.git
 ```
-Then you need to set up the `FLUX_PATH` and `LORA_PATH` in the config file of `tts/config`. The `FLUX_PATH` is what you set for `cache_dir` when using diffusers `from_pretrained` function. And the `LORA_PATH` is our [corrector model](https://huggingface.co/diffusion-cot/FLUX-Corrector) path.
+Then you need to set up the `FLUX_PATH` and `LORA_PATH` in the config file of `tts/config`. The `FLUX_PATH` is basically the contents of [black-forest-labs/FLUX.1-dev](https://huggingface.co/black-forest-labs/FLUX.1-dev/tree/main) which can be downloaded like so:
+
+```py
+from huggingface_hub import snapshot_download
+
+local_dir = "SOME_DIR"
+snapshot_download(repo_id="black-forest-labs/FLUX.1-dev", local_dir=local_dir)
+```
+
+The `LORA_PATH` is our [corrector model](https://huggingface.co/diffusion-cot/FLUX-Corrector) path.
 
 If you want to use our finetuned reflection generator, you need to first install [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). Then download
 the model from [here](https://huggingface.co/diffusion-cot/Reflection-Generator) and change the `model_name_or_path` in the config file of
-`tts/config/our_reflectionmodel.yaml` to the reflection generator path. To be specific, the path should be like `pathtofolder/infer/30000`. Next, host the model with:
+`tts/config/our_reflectionmodel.yaml` to the reflection generator path. To be specific, the path should be like `Reflection-Generator/infer/30000`. Next, host the model with:
 
 ```bash
 API_PORT=8001 CUDA_VISIBLE_DEVICES=0 llamafactory-cli api configs/our_reflectionmodel.yaml
