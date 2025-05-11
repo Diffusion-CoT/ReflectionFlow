@@ -8,7 +8,7 @@ import time
 from diffusers.utils.logging import set_verbosity_error
 set_verbosity_error()
 
-from .data_wds import ImageConditionWebDataset
+from .data import ImageConditionWebDataset
 from .model import OminiModel
 from .callbacks import TrainingCallback
 
