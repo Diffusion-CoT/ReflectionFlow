@@ -62,6 +62,7 @@ def sample(
     # Process the noises in batches.
     full_imgnames = []
     times = []
+    image_gen_times = []
     for i in range(0, len(noise_items), batch_size_for_img_gen):
         batch = noise_items[i : i + batch_size_for_img_gen]
         seeds_batch, noises_batch = zip(*batch)
@@ -78,7 +79,13 @@ def sample(
         batched_latents = torch.stack(noises_batch).squeeze(dim=1)
         batched_prompts = prompts[i : i + batch_size_for_img_gen]
 
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
         batch_result = pipe(prompt=batched_prompts, latents=batched_latents, guidance_scale=config_cp["pipeline_args"]["guidance_scale"], num_inference_steps=config_cp["pipeline_args"]["num_inference_steps"], height=config_cp["pipeline_args"]["height"], width=config_cp["pipeline_args"]["width"])
+        end.record()
+        torch.cuda.synchronize()
+        image_gen_times.extend([start.elapsed_time(end)])
         batch_images = batch_result.images
         if use_low_gpu_vram:
             pipe = pipe.to("cpu")
@@ -151,6 +158,7 @@ def sample(
         "search_round": search_round,
         "num_noises": len(noises),
         "choice_of_metric": choice_of_metric,
+        "image_gen_times": image_gen_times
     }
     return datapoint
 
@@ -222,9 +230,7 @@ def main():
     # else:
     #     metadatas = metadatas[args.start_index:args.end_index]
     
-    start = torch.cuda.Event(enable_timing=True)
-    end = torch.cuda.Event(enable_timing=True)
-    start.record()
+    timings = []
     for index, metadata in tqdm(enumerate(metadatas), desc="Sampling data"):
         # create output directory
         start_time = time.time()
@@ -267,11 +273,11 @@ def main():
                 midimg_path=midimg_path,
                 tag=metadata['tag'],
             )
+            timings.extend(datapoint["image_gen_times"])
             updated_prompt = datapoint['refined_prompt']
 
-    end.record()
-    torch.cuda.synchronize()
-    print(f"Time: {start.elapsed_time(end)}")
+    print(f"Total image gen time: {sum(timings):.2f} seconds.")
+
 
 if __name__ == "__main__":
     main()

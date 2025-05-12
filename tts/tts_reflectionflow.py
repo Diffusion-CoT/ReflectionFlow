@@ -300,8 +300,9 @@ def sample(
             prompts = refined_prompt
     else:
         prompts = original_prompts
-    start_time = time.time()
+    # start_time = time.time()
     full_imgnames = []
+    image_gen_times = []
     for i in range(0, len(noise_items), batch_size_for_img_gen):
         batch = noise_items[i : i + batch_size_for_img_gen]
         seeds_batch, noises_batch = zip(*batch)
@@ -319,6 +320,9 @@ def sample(
         conditionimgs_batch = conditionimgs[i : i + batch_size_for_img_gen]
 
         # use omini model to generate images
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
         batch_result = generate(
             pipe,
             prompt=batched_prompts,
@@ -328,6 +332,9 @@ def sample(
             model_config=config.get("model", None),
             default_lora=True,
         )
+        end.record()
+        torch.cuda.synchronize()
+        image_gen_times.extend([start.elapsed_time(end)])
         batch_images = batch_result.images
         if use_low_gpu_vram:
             pipe = pipe.to("cpu")
@@ -339,7 +346,7 @@ def sample(
             seeds_used.append(seed)
             image.save(filename)
     end_time = time.time()
-    print(f"Time taken for image generation: {end_time - start_time} seconds")
+    # print(f"Time taken for image generation: {end_time - start_time} seconds")
 
     ################## score again to decide whether save
     start_time = time.time()
@@ -467,6 +474,7 @@ def sample(
         "generated_img": full_imgnames,
         "flag_terminated": flag_terminated,
         "chains": chains,
+        "image_gen_times": image_gen_times
     }
     if refinement_performed:
         datapoint["refined_prompt"] = best_img_refine_prompt
@@ -568,9 +576,7 @@ def main():
     # else:
     #     metadatas = metadatas[args.start_index:args.end_index]
 
-    start = torch.cuda.Event(enable_timing=True)
-    end = torch.cuda.Event(enable_timing=True)
-    start.record()
+    timings = []
     for index, metadata in tqdm(enumerate(metadatas), desc="Sampling data"):
         metadatasave = metadata['metadata']
         images = metadata['images']
@@ -638,6 +644,7 @@ def main():
                 total_rounds=search_rounds,
                 chains=chains
             )
+            timings.extend(datapoint["image_gen_times"])
             if use_reflection or use_refine:
                 if use_reflection:
                     reflections = datapoint['reflections']
@@ -648,9 +655,7 @@ def main():
             if datapoint['flag_terminated']:
                 break
 
-    end.record()
-    torch.cuda.synchronize()
-    print(f"Time: {start.elapsed_time(end)}")
+    print(f"Total image gen time: {sum(timings):.2f} seconds.")
 
 if __name__ == "__main__":
     main()

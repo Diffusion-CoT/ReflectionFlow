@@ -1,243 +1,227 @@
 LoRA loaded.
-Misc IO and serialization took 0.0002608299255371094 seconds.
+Misc IO and serialization took 0.00024199485778808594 seconds.
 
 === Round: 1 ===
 Number of noise samples: 2
-Time taken for evaluation: 47.31083869934082 seconds
-Time taken for serializing best image eval results: 0.00023746490478515625 seconds
+Time taken for evaluation: 62.76584529876709 seconds
+Time taken for serializing best image eval results: 0.00020623207092285156 seconds
 Generating reflection.
-Time taken for reflection generation: 2.8286540508270264 seconds
-Time taken for prompt refinement: 15.664576530456543 seconds
-Serialization for refinement: 0.00021266937255859375 seconds.
-Preparation of conditioning took 0.08898067474365234 seconds.
-Generating images for batch with seeds: [560887786].
-Generating images for batch with seeds: [2135559971].
-Time taken for image generation: 42.32693028450012 seconds
-Time taken for evaluation: 5.838117361068726 seconds
-Misc serialization took 1.0552623271942139 seconds.
+Time taken for reflection generation: 2.6228384971618652 seconds
+Time taken for prompt refinement: 4.691374063491821 seconds
+Serialization for refinement: 0.0002028942108154297 seconds.
+Preparation of conditioning took 0.08724308013916016 seconds.
+Generating images for batch with seeds: [1841741738].
+Generating images for batch with seeds: [892955809].
+Time taken for evaluation: 5.133640766143799 seconds
+Misc serialization took 0.7751157283782959 seconds.
 
 === Round: 2 ===
 Number of noise samples: 2
-Time taken for evaluation: 5.539974212646484 seconds
-Time taken for serializing best image eval results: 0.00012993812561035156 seconds
+Time taken for evaluation: 6.657428741455078 seconds
+Time taken for serializing best image eval results: 0.00011110305786132812 seconds
 Generating reflection.
-Time taken for reflection generation: 1.770725965499878 seconds
-Time taken for prompt refinement: 4.383914947509766 seconds
-Serialization for refinement: 0.0005369186401367188 seconds.
-Preparation of conditioning took 0.08473038673400879 seconds.
-Generating images for batch with seeds: [1493811000].
-Generating images for batch with seeds: [943858555].
-Time taken for image generation: 41.59369397163391 seconds
-Time taken for evaluation: 4.409727096557617 seconds
-Misc serialization took 1.1188404560089111 seconds.
+Time taken for reflection generation: 1.4077861309051514 seconds
+Time taken for prompt refinement: 14.27638864517212 seconds
+Serialization for refinement: 0.00013113021850585938 seconds.
+Preparation of conditioning took 0.07546448707580566 seconds.
+Generating images for batch with seeds: [935281784].
+Generating images for batch with seeds: [1110054740].
+Time taken for evaluation: 6.107327699661255 seconds
+Misc serialization took 0.8292250633239746 seconds.
 
 === Round: 3 ===
 Number of noise samples: 2
-Time taken for evaluation: 4.097365856170654 seconds
-Time taken for serializing best image eval results: 0.0001163482666015625 seconds
+Time taken for evaluation: 13.968728303909302 seconds
+Time taken for serializing best image eval results: 0.00015592575073242188 seconds
 Generating reflection.
-Time taken for reflection generation: 1.3602261543273926 seconds
-Time taken for prompt refinement: 4.564223289489746 seconds
-Serialization for refinement: 0.00014901161193847656 seconds.
-Preparation of conditioning took 0.08433794975280762 seconds.
-Generating images for batch with seeds: [1402365128].
-Generating images for batch with seeds: [220338835].
-Time taken for image generation: 41.617977142333984 seconds
-Time taken for evaluation: 4.5083441734313965 seconds
-Misc serialization took 1.1181702613830566 seconds.
+Time taken for reflection generation: 1.7772841453552246 seconds
+Time taken for prompt refinement: 5.991986036300659 seconds
+Serialization for refinement: 0.00013637542724609375 seconds.
+Preparation of conditioning took 0.07639050483703613 seconds.
+Generating images for batch with seeds: [1737851226].
+Generating images for batch with seeds: [100972519].
+Time taken for evaluation: 4.039298057556152 seconds
+Misc serialization took 0.8311107158660889 seconds.
 
 === Round: 4 ===
 Number of noise samples: 2
-Time taken for evaluation: 4.357125759124756 seconds
-Time taken for serializing best image eval results: 0.00012135505676269531 seconds
+Time taken for evaluation: 3.6753103733062744 seconds
+Time taken for serializing best image eval results: 0.00011706352233886719 seconds
 Generating reflection.
-Time taken for reflection generation: 1.5891234874725342 seconds
-Time taken for prompt refinement: 3.62326979637146 seconds
-Serialization for refinement: 0.0001327991485595703 seconds.
-Preparation of conditioning took 0.08438563346862793 seconds.
-Generating images for batch with seeds: [1500306476].
-Generating images for batch with seeds: [292016740].
-Time taken for image generation: 41.618802309036255 seconds
-Time taken for evaluation: 5.657530307769775 seconds
-Misc serialization took 1.117436170578003 seconds.
+Time taken for reflection generation: 1.4873127937316895 seconds
+Time taken for prompt refinement: 5.524531602859497 seconds
+Serialization for refinement: 0.00034308433532714844 seconds.
+Preparation of conditioning took 0.07417178153991699 seconds.
+Generating images for batch with seeds: [842849553].
+Generating images for batch with seeds: [708676156].
+Time taken for evaluation: 5.551748752593994 seconds
+Misc serialization took 0.8275742530822754 seconds.
 
 === Round: 5 ===
 Number of noise samples: 2
-Time taken for evaluation: 7.578855991363525 seconds
-Time taken for serializing best image eval results: 0.0001163482666015625 seconds
+Time taken for evaluation: 11.80127239227295 seconds
+Time taken for serializing best image eval results: 0.00011014938354492188 seconds
 Generating reflection.
-Time taken for reflection generation: 1.6681032180786133 seconds
-Time taken for prompt refinement: 5.82232928276062 seconds
-Serialization for refinement: 0.000148773193359375 seconds.
-Preparation of conditioning took 0.08406972885131836 seconds.
-Generating images for batch with seeds: [1632983446].
-Generating images for batch with seeds: [1321548734].
-Time taken for image generation: 41.35864853858948 seconds
-Time taken for evaluation: 4.042961120605469 seconds
-Misc serialization took 1.117940902709961 seconds.
+Time taken for reflection generation: 1.6171824932098389 seconds
+Time taken for prompt refinement: 5.802929639816284 seconds
+Serialization for refinement: 0.0001380443572998047 seconds.
+Preparation of conditioning took 0.07826590538024902 seconds.
+Generating images for batch with seeds: [2020731779].
+Generating images for batch with seeds: [315466279].
+Time taken for evaluation: 7.396131277084351 seconds
+Misc serialization took 0.8283696174621582 seconds.
 
 === Round: 6 ===
 Number of noise samples: 2
-Time taken for evaluation: 6.270397424697876 seconds
-Time taken for serializing best image eval results: 0.00011873245239257812 seconds
+Time taken for evaluation: 5.328287839889526 seconds
+Time taken for serializing best image eval results: 0.00011229515075683594 seconds
 Generating reflection.
-Time taken for reflection generation: 1.6292731761932373 seconds
-Time taken for prompt refinement: 13.928833961486816 seconds
-Serialization for refinement: 0.0001277923583984375 seconds.
-Preparation of conditioning took 0.07235527038574219 seconds.
-Generating images for batch with seeds: [2006483294].
-Generating images for batch with seeds: [731505863].
-Time taken for image generation: 41.54205584526062 seconds
-Time taken for evaluation: 7.901580810546875 seconds
-Misc serialization took 1.1177213191986084 seconds.
+Time taken for reflection generation: 1.7705485820770264 seconds
+Time taken for prompt refinement: 9.840041637420654 seconds
+Serialization for refinement: 0.0001316070556640625 seconds.
+Preparation of conditioning took 0.07487916946411133 seconds.
+Generating images for batch with seeds: [1789977965].
+Generating images for batch with seeds: [1327219727].
+Time taken for evaluation: 5.425463914871216 seconds
+Misc serialization took 0.8280375003814697 seconds.
 
 === Round: 7 ===
 Number of noise samples: 2
-Time taken for evaluation: 4.796489477157593 seconds
-Time taken for serializing best image eval results: 0.00011110305786132812 seconds
+Time taken for evaluation: 4.704913377761841 seconds
+Time taken for serializing best image eval results: 0.002872943878173828 seconds
 Generating reflection.
-Time taken for reflection generation: 1.6953341960906982 seconds
-Time taken for prompt refinement: 7.872227430343628 seconds
-Serialization for refinement: 0.00013828277587890625 seconds.
-Preparation of conditioning took 0.08088374137878418 seconds.
-Generating images for batch with seeds: [392100297].
-Generating images for batch with seeds: [1030320583].
-Time taken for image generation: 41.543137073516846 seconds
-Time taken for evaluation: 3.7681214809417725 seconds
-Misc serialization took 1.1171927452087402 seconds.
+Time taken for reflection generation: 1.4845905303955078 seconds
+Time taken for prompt refinement: 6.685183048248291 seconds
+Serialization for refinement: 0.00013756752014160156 seconds.
+Preparation of conditioning took 0.07348394393920898 seconds.
+Generating images for batch with seeds: [1221689626].
+Generating images for batch with seeds: [2030426874].
+Time taken for evaluation: 3.9290170669555664 seconds
+Misc serialization took 0.8283107280731201 seconds.
 
 === Round: 8 ===
 Number of noise samples: 2
-Time taken for evaluation: 5.582700967788696 seconds
-Time taken for serializing best image eval results: 0.00011754035949707031 seconds
+Time taken for evaluation: 4.905580759048462 seconds
+Time taken for serializing best image eval results: 0.00010609626770019531 seconds
 Generating reflection.
-Time taken for reflection generation: 1.7154159545898438 seconds
-Time taken for prompt refinement: 7.364751100540161 seconds
-Serialization for refinement: 0.0001513957977294922 seconds.
-Preparation of conditioning took 0.08218932151794434 seconds.
-Generating images for batch with seeds: [304520254].
-Generating images for batch with seeds: [1522137837].
-Time taken for image generation: 41.58010292053223 seconds
-Time taken for evaluation: 34.49735450744629 seconds
-Misc serialization took 1.1175439357757568 seconds.
+Time taken for reflection generation: 1.9208455085754395 seconds
+Time taken for prompt refinement: 5.626101016998291 seconds
+Serialization for refinement: 0.00013494491577148438 seconds.
+Preparation of conditioning took 0.06768798828125 seconds.
+Generating images for batch with seeds: [1856856968].
+Generating images for batch with seeds: [466176122].
+Time taken for evaluation: 4.667743921279907 seconds
+Misc serialization took 0.8289058208465576 seconds.
 
 === Round: 9 ===
 Number of noise samples: 2
-Time taken for evaluation: 4.364017724990845 seconds
-Time taken for serializing best image eval results: 0.00011706352233886719 seconds
+Time taken for evaluation: 6.466008424758911 seconds
+Time taken for serializing best image eval results: 0.00011301040649414062 seconds
 Generating reflection.
-Time taken for reflection generation: 1.589029312133789 seconds
-Time taken for prompt refinement: 7.346824407577515 seconds
-Serialization for refinement: 0.00015020370483398438 seconds.
-Preparation of conditioning took 0.0833134651184082 seconds.
-Generating images for batch with seeds: [724262227].
-Generating images for batch with seeds: [990854797].
-Time taken for image generation: 41.51564073562622 seconds
-Time taken for evaluation: 9.159844398498535 seconds
-Misc serialization took 1.1167325973510742 seconds.
+Time taken for reflection generation: 1.6454195976257324 seconds
+Time taken for prompt refinement: 6.877538204193115 seconds
+Serialization for refinement: 0.00013971328735351562 seconds.
+Preparation of conditioning took 0.07927775382995605 seconds.
+Generating images for batch with seeds: [2072934690].
+Generating images for batch with seeds: [978695502].
+Time taken for evaluation: 4.035587787628174 seconds
+Misc serialization took 0.8279180526733398 seconds.
 
 === Round: 10 ===
 Number of noise samples: 2
-Time taken for evaluation: 11.056236505508423 seconds
-Time taken for serializing best image eval results: 0.002207040786743164 seconds
+Time taken for evaluation: 8.163351774215698 seconds
+Time taken for serializing best image eval results: 0.0001246929168701172 seconds
 Generating reflection.
-Time taken for reflection generation: 1.6897315979003906 seconds
-Time taken for prompt refinement: 7.199419021606445 seconds
-Serialization for refinement: 0.0001544952392578125 seconds.
-Preparation of conditioning took 0.08306431770324707 seconds.
-Generating images for batch with seeds: [1766384868].
-Generating images for batch with seeds: [1927535050].
-Time taken for image generation: 41.54833984375 seconds
-Time taken for evaluation: 5.6118316650390625 seconds
-Misc serialization took 1.1173079013824463 seconds.
+Time taken for reflection generation: 1.5591204166412354 seconds
+Time taken for prompt refinement: 8.714700698852539 seconds
+Serialization for refinement: 0.00014090538024902344 seconds.
+Preparation of conditioning took 0.06813931465148926 seconds.
+Generating images for batch with seeds: [1872560725].
+Generating images for batch with seeds: [850271444].
+Time taken for evaluation: 3.713582754135132 seconds
+Misc serialization took 0.8279128074645996 seconds.
 
 === Round: 11 ===
 Number of noise samples: 2
-Time taken for evaluation: 10.036144018173218 seconds
-Time taken for serializing best image eval results: 0.00011658668518066406 seconds
+Time taken for evaluation: 4.74567437171936 seconds
+Time taken for serializing best image eval results: 0.0001163482666015625 seconds
 Generating reflection.
-Time taken for reflection generation: 1.282763957977295 seconds
-Time taken for prompt refinement: 8.928014278411865 seconds
-Serialization for refinement: 0.00014781951904296875 seconds.
-Preparation of conditioning took 0.08037376403808594 seconds.
-Generating images for batch with seeds: [2144073245].
-Generating images for batch with seeds: [1769150130].
-Time taken for image generation: 41.572895765304565 seconds
-Time taken for evaluation: 3.655172109603882 seconds
-Misc serialization took 1.118119239807129 seconds.
+Time taken for reflection generation: 1.8192322254180908 seconds
+Time taken for prompt refinement: 4.287574291229248 seconds
+Serialization for refinement: 0.00011897087097167969 seconds.
+Preparation of conditioning took 0.07123041152954102 seconds.
+Generating images for batch with seeds: [125072485].
+Generating images for batch with seeds: [1043556914].
+Time taken for evaluation: 4.2703163623809814 seconds
+Misc serialization took 0.8312945365905762 seconds.
 
 === Round: 12 ===
 Number of noise samples: 2
-Time taken for evaluation: 3.9777534008026123 seconds
-Time taken for serializing best image eval results: 0.00011873245239257812 seconds
+Time taken for evaluation: 4.694371461868286 seconds
+Time taken for serializing best image eval results: 0.00011396408081054688 seconds
 Generating reflection.
-Time taken for reflection generation: 1.638963222503662 seconds
-Time taken for prompt refinement: 7.389754772186279 seconds
-Serialization for refinement: 0.0001418590545654297 seconds.
-Preparation of conditioning took 0.08114504814147949 seconds.
-Generating images for batch with seeds: [1641714381].
-Generating images for batch with seeds: [1272394770].
-Time taken for image generation: 41.648497104644775 seconds
-Time taken for evaluation: 4.164292573928833 seconds
-Misc serialization took 1.1174771785736084 seconds.
+Time taken for reflection generation: 1.5861921310424805 seconds
+Time taken for prompt refinement: 7.091067314147949 seconds
+Serialization for refinement: 0.00014066696166992188 seconds.
+Preparation of conditioning took 0.07129383087158203 seconds.
+Generating images for batch with seeds: [774232443].
+Generating images for batch with seeds: [1104224612].
+Time taken for evaluation: 6.611560583114624 seconds
+Misc serialization took 0.8281619548797607 seconds.
 
 === Round: 13 ===
 Number of noise samples: 2
-Time taken for evaluation: 3.8992114067077637 seconds
-Time taken for serializing best image eval results: 0.00011754035949707031 seconds
+Time taken for evaluation: 3.425745725631714 seconds
+Time taken for serializing best image eval results: 0.00012087821960449219 seconds
 Generating reflection.
-Time taken for reflection generation: 1.4874227046966553 seconds
-Time taken for prompt refinement: 5.573331356048584 seconds
-Serialization for refinement: 0.00014209747314453125 seconds.
-Preparation of conditioning took 0.08231353759765625 seconds.
-Generating images for batch with seeds: [1185372068].
-Generating images for batch with seeds: [2079356382].
-Time taken for image generation: 41.43191933631897 seconds
-Time taken for evaluation: 4.1621904373168945 seconds
-Misc serialization took 1.1171343326568604 seconds.
+Time taken for reflection generation: 1.412208080291748 seconds
+Time taken for prompt refinement: 7.177330732345581 seconds
+Serialization for refinement: 0.00014591217041015625 seconds.
+Preparation of conditioning took 0.07421207427978516 seconds.
+Generating images for batch with seeds: [4882718].
+Generating images for batch with seeds: [380907557].
+Time taken for evaluation: 3.547520637512207 seconds
+Misc serialization took 0.82802414894104 seconds.
 
 === Round: 14 ===
 Number of noise samples: 2
-Time taken for evaluation: 4.421410799026489 seconds
-Time taken for serializing best image eval results: 0.00011324882507324219 seconds
+Time taken for evaluation: 3.4897842407226562 seconds
+Time taken for serializing best image eval results: 0.0001125335693359375 seconds
 Generating reflection.
-Time taken for reflection generation: 1.5024101734161377 seconds
-Time taken for prompt refinement: 8.606159687042236 seconds
-Serialization for refinement: 0.00013494491577148438 seconds.
-Preparation of conditioning took 0.07213211059570312 seconds.
-Generating images for batch with seeds: [1071578328].
-Generating images for batch with seeds: [490392601].
-Time taken for image generation: 41.66348338127136 seconds
-Time taken for evaluation: 4.435163497924805 seconds
-Misc serialization took 1.1168580055236816 seconds.
+Time taken for reflection generation: 1.3551280498504639 seconds
+Time taken for prompt refinement: 6.279519081115723 seconds
+Serialization for refinement: 0.00013065338134765625 seconds.
+Preparation of conditioning took 0.07224583625793457 seconds.
+Generating images for batch with seeds: [1765021368].
+Generating images for batch with seeds: [297477595].
+Time taken for evaluation: 4.118345499038696 seconds
+Misc serialization took 0.8272466659545898 seconds.
 
 === Round: 15 ===
 Number of noise samples: 2
-Time taken for evaluation: 8.86706805229187 seconds
-Time taken for serializing best image eval results: 0.00012111663818359375 seconds
+Time taken for evaluation: 4.554068565368652 seconds
+Time taken for serializing best image eval results: 0.000698089599609375 seconds
 Generating reflection.
-Time taken for reflection generation: 1.770073413848877 seconds
-Time taken for prompt refinement: 6.182831525802612 seconds
-Serialization for refinement: 0.00014352798461914062 seconds.
-Preparation of conditioning took 0.08352923393249512 seconds.
-Generating images for batch with seeds: [1520774622].
-Generating images for batch with seeds: [1047308574].
-Time taken for image generation: 41.503114223480225 seconds
-Time taken for evaluation: 3.8306219577789307 seconds
-Misc serialization took 1.1174778938293457 seconds.
+Time taken for reflection generation: 1.58595871925354 seconds
+Time taken for prompt refinement: 5.059208393096924 seconds
+Serialization for refinement: 0.0001614093780517578 seconds.
+Preparation of conditioning took 0.07039690017700195 seconds.
+Generating images for batch with seeds: [431392619].
+Generating images for batch with seeds: [3345220].
+Time taken for evaluation: 3.3580381870269775 seconds
+Misc serialization took 0.827690839767456 seconds.
 
 === Round: 16 ===
 Number of noise samples: 2
-Time taken for evaluation: 3.970658302307129 seconds
-Time taken for serializing best image eval results: 0.00010991096496582031 seconds
+Time taken for evaluation: 6.22363543510437 seconds
+Time taken for serializing best image eval results: 0.00012183189392089844 seconds
 Generating reflection.
-Time taken for reflection generation: 1.6584677696228027 seconds
-Time taken for prompt refinement: 7.4802405834198 seconds
-Serialization for refinement: 0.000133514404296875 seconds.
-Preparation of conditioning took 0.07228779792785645 seconds.
-Generating images for batch with seeds: [1580512641].
-Generating images for batch with seeds: [1188986531].
-Time taken for image generation: 41.464367628097534 seconds
-Time taken for evaluation: 4.248649835586548 seconds
-Misc serialization took 2.580151081085205 seconds.
-Time: 1081322.5
+Time taken for reflection generation: 1.5329549312591553 seconds
+Time taken for prompt refinement: 6.1982197761535645 seconds
+Serialization for refinement: 0.0001342296600341797 seconds.
+Preparation of conditioning took 0.06972932815551758 seconds.
+Generating images for batch with seeds: [400420061].
+Generating images for batch with seeds: [1361754412].
+Time taken for evaluation: 3.3316092491149902 seconds
+Misc serialization took 2.096158504486084 seconds.
+Total image gen time: 651167.67 seconds.
