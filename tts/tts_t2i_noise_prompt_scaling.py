@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+import time
 
 import numpy as np
 import torch
@@ -60,6 +61,8 @@ def sample(
 
     # Process the noises in batches.
     full_imgnames = []
+    times = []
+    image_gen_times = []
     for i in range(0, len(noise_items), batch_size_for_img_gen):
         batch = noise_items[i : i + batch_size_for_img_gen]
         seeds_batch, noises_batch = zip(*batch)
@@ -76,17 +79,28 @@ def sample(
         batched_latents = torch.stack(noises_batch).squeeze(dim=1)
         batched_prompts = prompts[i : i + batch_size_for_img_gen]
 
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
         batch_result = pipe(prompt=batched_prompts, latents=batched_latents, guidance_scale=config_cp["pipeline_args"]["guidance_scale"], num_inference_steps=config_cp["pipeline_args"]["num_inference_steps"], height=config_cp["pipeline_args"]["height"], width=config_cp["pipeline_args"]["width"])
+        end.record()
+        torch.cuda.synchronize()
+        image_gen_times.extend([start.elapsed_time(end)])
         batch_images = batch_result.images
         if use_low_gpu_vram:
             pipe = pipe.to("cpu")
 
         # Iterate over the batch and save the images.
+        start_time = time.time()
         for seed, noise, image, filename in zip(seeds_batch, noises_batch, batch_images, filenames_batch):
             images_for_prompt.append(image)
             noises_used.append(noise)
             seeds_used.append(seed)
             image.save(filename)
+        end_time = time.time()
+        times.append(end_time - start_time)
+
+    print(f"Image serialization took: {sum(times):.2f} seconds.")
 
     # Prepare verifier inputs and perform inference.
     start_time = time.time()
@@ -123,6 +137,7 @@ def sample(
     topk_idx = [outputs.index(x) for x in topk_scores]
 
     # Refine the prompt for the next round
+    start_time = time.time()
     evaluations = [json.dumps(json_dict) for json_dict in outputs]
     if verifier_name == "openai":
         refined_prompt_inputs = refiner.prepare_refine_prompt_inputs(images=images_for_prompt, evaluations=evaluations, original_prompt=[original_prompt] * len(images_for_prompt), current_prompt=prompts)
@@ -134,6 +149,8 @@ def sample(
 
     with open(os.path.join(root_dir, f"best_img_meta.jsonl"), "a") as f:
         f.write(f"refined_prompt{search_round}: "+json.dumps(prompts) + "\n")
+    end_time = time.time()
+    print(f"Refinement with verifier and other IO took: {(end_time - start_time):.2f} seconds.")
 
     datapoint = {
         "original_prompt": original_prompt,
@@ -141,6 +158,7 @@ def sample(
         "search_round": search_round,
         "num_noises": len(noises),
         "choice_of_metric": choice_of_metric,
+        "image_gen_times": image_gen_times
     }
     return datapoint
 
@@ -197,18 +215,25 @@ def main():
     else:
         raise ValueError(f"Verifier {verifier_name} not supported")
 
+    # warmup
+    for _ in range(3):
+        pipe("pok pok", num_inference_steps=10)
+
     # Main loop: For each search round and each prompt, generate images, verify, and save artifacts.
     with open(args.meta_path) as fp:
         metadatas = [json.loads(line) for line in fp]
+    metadatas = metadatas[:1] # benchmarking
 
     # meta splits
-    if args.end_index == -1:
-        metadatas = metadatas[args.start_index:]
-    else:
-        metadatas = metadatas[args.start_index:args.end_index]
-
+    # if args.end_index == -1:
+    #     metadatas = metadatas[args.start_index:]
+    # else:
+    #     metadatas = metadatas[args.start_index:args.end_index]
+    
+    timings = []
     for index, metadata in tqdm(enumerate(metadatas), desc="Sampling data"):
         # create output directory
+        start_time = time.time()
         outpath = os.path.join(root_dir, f"{index + args.start_index:0>5}")
         os.makedirs(outpath, exist_ok=True)
 
@@ -219,6 +244,9 @@ def main():
         # create metadata file
         with open(os.path.join(outpath, "metadata.jsonl"), "w") as fp:
             json.dump(metadata, fp)
+        
+        end_time = time.time()
+        print(f"Folder creation and JSON opening took: {(end_time - start_time):.2f} seconds.")
 
         updated_prompt = [metadata['prompt']] * search_branch
         original_prompt = metadata['prompt']
@@ -245,7 +273,11 @@ def main():
                 midimg_path=midimg_path,
                 tag=metadata['tag'],
             )
+            timings.extend(datapoint["image_gen_times"])
             updated_prompt = datapoint['refined_prompt']
+
+    print(f"Total image gen time: {sum(timings):.2f} seconds.")
+
 
 if __name__ == "__main__":
     main()
