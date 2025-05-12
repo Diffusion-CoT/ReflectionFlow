@@ -1,0 +1,363 @@
+diff --git a/tts/configs/flux.1_dev_gptscore.json b/tts/configs/flux.1_dev_gptscore.json
+index 5db678a..39741a0 100644
+--- a/tts/configs/flux.1_dev_gptscore.json
++++ b/tts/configs/flux.1_dev_gptscore.json
+@@ -2,7 +2,7 @@
+     
+     "pipeline_args": {
+         "pretrained_model_name_or_path": "black-forest-labs/FLUX.1-dev",
+-        "cache_dir": "FLUX_PATH",
++        "cache_dir": "/mnt/data-volume/FLUX.1-dev",
+         "torch_dtype": "bf16",
+         "height": 1024,
+         "width": 1024,
+@@ -10,7 +10,7 @@
+         "max_sequence_length": 512,
+         "guidance_scale": 3.5,
+         "num_inference_steps": 30,
+-        "lora_path": "LORA_PATH"
++        "lora_path": "/mnt/data-volume/FLUX-Corrector"
+     },
+     "verifier_args": {
+         "name": "openai",
+@@ -40,7 +40,7 @@
+     },
+     "reflection_args": {
+         "run_reflection": true,
+-        "name": "openai"
++        "name": "ours"
+     },
+     "prompt_refiner_args": {
+         "run_refinement": true
+diff --git a/tts/configs/our_reflectionmodel.yaml b/tts/configs/our_reflectionmodel.yaml
+index 539e28d..0206db4 100644
+--- a/tts/configs/our_reflectionmodel.yaml
++++ b/tts/configs/our_reflectionmodel.yaml
+@@ -1,3 +1,3 @@
+-model_name_or_path: path/infer/30000
++model_name_or_path: /mnt/data-volume/Reflection-Generator/infer/30000
+ template: qwen2_vl
+ finetuning_type: lora
+\ No newline at end of file
+diff --git a/tts/tts_reflectionflow.py b/tts/tts_reflectionflow.py
+index 4a098a8..57b89a9 100644
+--- a/tts/tts_reflectionflow.py
++++ b/tts/tts_reflectionflow.py
+@@ -1,7 +1,7 @@
+ import os
+ import json
+ from datetime import datetime
+-
++import time
+ import numpy as np
+ import torch
+ from diffusers import DiffusionPipeline
+@@ -182,12 +182,15 @@ def sample(
+         selected_outputs = selected_outputs + selected_outputs[:repeat_count]
+ 
+     # save best img evaluation results
++    start_time = time.time()
+     with open(os.path.join(root_dir, f"best_img_detailedscore.jsonl"), "a") as f:
+         data = {
+             "evaluation": selected_outputs,
+             "filenames_batch": selected_imgs,
+         }
+         f.write(json.dumps(data) + "\n")
++    end_time = time.time()
++    print(f"Time taken for serializing best image eval results: {end_time - start_time} seconds")
+     #####################################################
+     # generate reflections first at each round
+     # breakpoint()
+@@ -263,21 +266,26 @@ def sample(
+         best_img_refine_prompt = refined_prompt
+     # save mid meta results
+     if reflection_performed or refinement_performed:
++        start_time = time.time()
+         with open(os.path.join(root_dir, f"best_img_meta.jsonl"), "a") as f:
+             if reflection_performed:
+                 f.write(f"reflections{search_round}: "+json.dumps(best_img_reflections) + "\n")
+             if refinement_performed:
+                 f.write(f"refined_prompt{search_round}: "+json.dumps(best_img_refine_prompt) + "\n")
+             f.write(f"filenames_batch{search_round}: "+json.dumps(selected_imgs) + "\n")
++        end_time = time.time()
++        print(f"Serialization for refinement: {end_time - start_time} seconds.")
+     #####################################################
+     original_prompts = [original_prompt] * num_samples
+     conditionimgs = []
++    start_time = time.time()
+     for i in range(len(selected_imgs)):
+         tmp = Image.open(selected_imgs[i])
+         tmp = tmp.resize((config_cp["pipeline_args"]["condition_size"], config_cp["pipeline_args"]["condition_size"]))
+         position_delta = np.array([0, -config_cp["pipeline_args"]["condition_size"] // 16])
+         conditionimgs.append(Condition(condition=tmp, condition_type="cot", position_delta=position_delta))
+-
++    end_time = time.time()
++    print(f"Preparation of conditioning took {end_time - start_time} seconds.")
+     # Convert the noises dictionary into a list of (seed, noise) tuples.
+     noise_items = list(noises.items())
+ 
+@@ -356,6 +364,7 @@ def sample(
+     print(f"Time taken for evaluation: {end_time - start_time} seconds")
+ 
+     # init chain
++    start_time = time.time()
+     if search_round == 1:
+         # Update chains with the selected images and scores
+         if verifier_name == "openai":
+@@ -447,6 +456,9 @@ def sample(
+         img = Image.open(img_path)
+         img.save(os.path.join(sample_path_best, f"{i:05}.png"))
+ 
++    end_time = time.time()
++    print(f"Misc serialization took {end_time - start_time} seconds.")
++
+     datapoint = {
+         "original_prompt": original_prompt,
+         "search_round": search_round,
+@@ -548,17 +560,22 @@ def main():
+                     folder_data['images'].append(img_path)
+             metadatas.append(folder_data)
+ 
++    metadatas = metadatas[:1] # benchmarking
+ 
+     # meta splits
+-    if args.end_index == -1:
+-        metadatas = metadatas[args.start_index:]
+-    else:
+-        metadatas = metadatas[args.start_index:args.end_index]
+-
++    # if args.end_index == -1:
++    #     metadatas = metadatas[args.start_index:]
++    # else:
++    #     metadatas = metadatas[args.start_index:args.end_index]
++
++    start = torch.cuda.Event(enable_timing=True)
++    end = torch.cuda.Event(enable_timing=True)
++    start.record()
+     for index, metadata in tqdm(enumerate(metadatas), desc="Sampling data"):
+         metadatasave = metadata['metadata']
+         images = metadata['images']
+         # create output directory
++        start_time = time.time()
+         outpath = os.path.join(root_dir, f"{index + args.start_index:0>5}")
+         os.makedirs(outpath, exist_ok=True)
+ 
+@@ -578,6 +595,9 @@ def main():
+         with open(os.path.join(outpath, "metadata.jsonl"), "w") as fp:
+             json.dump(metadatasave[0], fp)
+ 
++        end_time = time.time()
++        print(f"Misc IO and serialization took {end_time - start_time} seconds.")
++
+         updated_prompt = [metadatasave[0]['prompt']] * search_branch
+         original_prompt = metadatasave[0]['prompt']
+ 
+@@ -628,5 +648,9 @@ def main():
+             if datapoint['flag_terminated']:
+                 break
+ 
++    end.record()
++    torch.cuda.synchronize()
++    print(f"Time: {start.elapsed_time(end)}")
++
+ if __name__ == "__main__":
+     main()
+diff --git a/tts/tts_t2i_noise_prompt_scaling.py b/tts/tts_t2i_noise_prompt_scaling.py
+index 95f5f31..17cf7a3 100644
+--- a/tts/tts_t2i_noise_prompt_scaling.py
++++ b/tts/tts_t2i_noise_prompt_scaling.py
+@@ -1,6 +1,7 @@
+ import os
+ import json
+ from datetime import datetime
++import time
+ 
+ import numpy as np
+ import torch
+@@ -60,6 +61,7 @@ def sample(
+ 
+     # Process the noises in batches.
+     full_imgnames = []
++    times = []
+     for i in range(0, len(noise_items), batch_size_for_img_gen):
+         batch = noise_items[i : i + batch_size_for_img_gen]
+         seeds_batch, noises_batch = zip(*batch)
+@@ -82,11 +84,16 @@ def sample(
+             pipe = pipe.to("cpu")
+ 
+         # Iterate over the batch and save the images.
++        start_time = time.time()
+         for seed, noise, image, filename in zip(seeds_batch, noises_batch, batch_images, filenames_batch):
+             images_for_prompt.append(image)
+             noises_used.append(noise)
+             seeds_used.append(seed)
+             image.save(filename)
++        end_time = time.time()
++        times.append(end_time - start_time)
++
++    print(f"Image serialization took: {sum(times):.2f} seconds.")
+ 
+     # Prepare verifier inputs and perform inference.
+     start_time = time.time()
+@@ -123,6 +130,7 @@ def sample(
+     topk_idx = [outputs.index(x) for x in topk_scores]
+ 
+     # Refine the prompt for the next round
++    start_time = time.time()
+     evaluations = [json.dumps(json_dict) for json_dict in outputs]
+     if verifier_name == "openai":
+         refined_prompt_inputs = refiner.prepare_refine_prompt_inputs(images=images_for_prompt, evaluations=evaluations, original_prompt=[original_prompt] * len(images_for_prompt), current_prompt=prompts)
+@@ -134,6 +142,8 @@ def sample(
+ 
+     with open(os.path.join(root_dir, f"best_img_meta.jsonl"), "a") as f:
+         f.write(f"refined_prompt{search_round}: "+json.dumps(prompts) + "\n")
++    end_time = time.time()
++    print(f"Refinement with verifier and other IO took: {(end_time - start_time):.2f} seconds.")
+ 
+     datapoint = {
+         "original_prompt": original_prompt,
+@@ -197,18 +207,27 @@ def main():
+     else:
+         raise ValueError(f"Verifier {verifier_name} not supported")
+ 
++    # warmup
++    for _ in range(3):
++        pipe("pok pok", num_inference_steps=10)
++
+     # Main loop: For each search round and each prompt, generate images, verify, and save artifacts.
+     with open(args.meta_path) as fp:
+         metadatas = [json.loads(line) for line in fp]
++    metadatas = metadatas[:1] # benchmarking
+ 
+     # meta splits
+-    if args.end_index == -1:
+-        metadatas = metadatas[args.start_index:]
+-    else:
+-        metadatas = metadatas[args.start_index:args.end_index]
+-
++    # if args.end_index == -1:
++    #     metadatas = metadatas[args.start_index:]
++    # else:
++    #     metadatas = metadatas[args.start_index:args.end_index]
++    
++    start = torch.cuda.Event(enable_timing=True)
++    end = torch.cuda.Event(enable_timing=True)
++    start.record()
+     for index, metadata in tqdm(enumerate(metadatas), desc="Sampling data"):
+         # create output directory
++        start_time = time.time()
+         outpath = os.path.join(root_dir, f"{index + args.start_index:0>5}")
+         os.makedirs(outpath, exist_ok=True)
+ 
+@@ -219,6 +238,9 @@ def main():
+         # create metadata file
+         with open(os.path.join(outpath, "metadata.jsonl"), "w") as fp:
+             json.dump(metadata, fp)
++        
++        end_time = time.time()
++        print(f"Folder creation and JSON opening took: {(end_time - start_time):.2f} seconds.")
+ 
+         updated_prompt = [metadata['prompt']] * search_branch
+         original_prompt = metadata['prompt']
+@@ -247,5 +269,9 @@ def main():
+             )
+             updated_prompt = datapoint['refined_prompt']
+ 
++    end.record()
++    torch.cuda.synchronize()
++    print(f"Time: {start.elapsed_time(end)}")
++
+ if __name__ == "__main__":
+     main()
+diff --git a/tts/tts_t2i_noise_scaling.py b/tts/tts_t2i_noise_scaling.py
+index 68f2c3f..f037c47 100644
+--- a/tts/tts_t2i_noise_scaling.py
++++ b/tts/tts_t2i_noise_scaling.py
+@@ -1,6 +1,6 @@
+ import os
+ import json
+-
++import time
+ import numpy as np
+ import torch
+ from diffusers import DiffusionPipeline
+@@ -41,6 +41,7 @@ def sample(
+ 
+     # Process the noises in batches.
+     full_imgnames = []
++    times = []
+     for i in range(0, len(noise_items), batch_size_for_img_gen):
+         batch = noise_items[i : i + batch_size_for_img_gen]
+         seeds_batch, noises_batch = zip(*batch)
+@@ -63,11 +64,16 @@ def sample(
+             pipe = pipe.to("cpu")
+ 
+         # Iterate over the batch and save the images.
++        start_time = time.time()
+         for seed, noise, image, filename in zip(seeds_batch, noises_batch, batch_images, filenames_batch):
+             images_for_prompt.append(image)
+             noises_used.append(noise)
+             seeds_used.append(seed)
+             image.save(filename)
++        end_time = time.time()
++        times.append(end_time - start_time)
++    
++    print(f"Image serialization took: {sum(times):.2f} seconds.")
+     
+     datapoint = {
+         "prompt": original_prompt,
+@@ -113,20 +119,29 @@ def main():
+         pipe = pipe.to("cuda:0")
+     pipe.set_progress_bar_config(disable=True)
+ 
++    # warmup
++    for _ in range(3):
++        pipe("pok pok", num_inference_steps=10)
++
+     # Main loop: For each search round and each prompt, generate images, verify, and save artifacts.
+     with open(args.meta_path) as fp:
+         metadatas = [json.loads(line) for line in fp]
++    metadatas = metadatas[:1] # benchmarking
+ 
+     # meta splits
+-    if args.end_index == -1:
+-        metadatas = metadatas[args.start_index:]
+-    else:
+-        metadatas = metadatas[args.start_index:args.end_index]
+-
++    # if args.end_index == -1:
++    #     metadatas = metadatas[args.start_index:]
++    # else:
++    #     metadatas = metadatas[args.start_index:args.end_index]
++
++    start = torch.cuda.Event(enable_timing=True)
++    end = torch.cuda.Event(enable_timing=True)
++    start.record()
+     for index, metadata in tqdm(enumerate(metadatas), desc="Sampling prompts"):
+         original_prompt = metadata['prompt']
+         current_prompts = [original_prompt] * search_branch
+         # create output directory
++        start_time = time.time()
+         outpath = os.path.join(root_dir, f"{index + args.start_index:0>5}")
+         os.makedirs(outpath, exist_ok=True)
+ 
+@@ -137,6 +152,8 @@ def main():
+         # create metadata file
+         with open(os.path.join(outpath, "metadata.jsonl"), "w") as fp:
+             json.dump(metadata, fp)
++        end_time = time.time()
++        print(f"Folder creation and JSON opening took: {(end_time - start_time):.2f} seconds.")
+             
+         for round in range(1, search_rounds + 1):
+             print(f"\n=== Round: {round} ===")
+@@ -158,6 +175,10 @@ def main():
+                 midimg_path=midimg_path,
+             )
+ 
++    end.record()
++    torch.cuda.synchronize()
++    print(f"Time: {start.elapsed_time(end)}")
++
+ 
+ if __name__ == "__main__":
+     main()

@@ -1,0 +1,165 @@
+Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s][A
+Loading checkpoint shards:  33%|███▎      | 1/3 [00:00<00:00,  5.57it/s][ALoading checkpoint shards: 100%|██████████| 3/3 [00:00<00:00, 13.55it/s]
+Loading pipeline components...:  14%|█▍        | 1/7 [00:00<00:01,  3.56it/s]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s][ALoading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 57.30it/s]
+Loading pipeline components...:  57%|█████▋    | 4/7 [00:00<00:00, 11.49it/s]You set `add_prefix_space`. The tokenizer needs to be converted from the slow tokenizers
+Loading pipeline components...:  86%|████████▌ | 6/7 [00:00<00:00,  9.74it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:00<00:00,  9.88it/s]
+Sampling data: 0it [00:00, ?it/s]Token indices sequence length is longer than the specified maximum sequence length for this model (91 > 77). Running this sequence through the model will result in indexing errors
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['with a slight depth in the background to emphasize perspective and realism.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['atmosphere, with a soft focus in the background to emphasize the bench as the focal point.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['a soft focus with faint figures or pathways to suggest a dynamic but tranquil park environment. the overall scene exudes peace and warmth, with vibrant, natural colors and fine details emphasizing the craftsmanship of the bench.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['the wood grain and weathered appearance of the bench, along with faint imperfections for added realism. the background should include a slight depth of field, softly blurring distant trees to emphasize perspective and focus on the bench. the atmosphere should be tranquil, harmonious, and inviting, with a balanced color palette to maintain visual appeal.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['off - center, serves as the primary focus, showcasing its fine craftsmanship with detailed wood textures and natural finishes. the background features a soft - focus, with subtle activity like faint figures or winding pathways, hinting at a tranquil, dynamic park atmosphere. the overall composition radiates warmth and peace, with vivid, natural colors and intricate details creating a picturesque and captivating environment.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['sunlight to create intricate dappled patterns and gentle shadows on the ground. enhance the depth of field to softly blur the distant trees and emphasize the focus on the bench and surrounding foreground. subtle details, such as a butterfly resting on a flower or a breeze slightly moving the grass, should contribute to the serene and harmonious atmosphere. the overall color palette should include soft, natural tones to maintain balance and visual appeal.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['create intricate dappled patterns and warm highlights on the ground around the bench. enhance the focus on the bench and the immediate foreground by gently blurring the distant trees for added depth. introduce subtle, dynamic elements such as a butterfly gently resting on the bench or a flower, and a soft breeze swaying the wildflowers and grass. ensure soft, natural tones harmonize throughout the scene, emphasizing calmness and serenity while maintaining balanced visual appeal and subtle realism.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: [', serves as the primary focus, showcasing its fine craftsmanship with detailed wood grain and polished natural finishes. the background features subtle soft - focus elements like faint figures strolling or cycling along winding pathways, creating a dynamic yet tranquil park atmosphere. include harmonious, vivid natural colors and meticulous details for a picturesque scene radiating warmth, peace, and inviting charm.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['point. the bench, showcased slightly off - center with a gently curved design, highlights its fine craftsmanship, featuring intricate wood grain details and polished natural finishes. the background includes softly blurred figures strolling or cycling along winding pathways, enhancing the sense of life and movement without detracting from the serene atmosphere. amplify the play of light and shadows for a more dynamic visual impact and ensure the colors are vibrant, natural, and harmoniously balanced, emphasizing warmth, peace, and inviting charm in this picturesque scene.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['their softly glowing leaves filtering rays of golden sunlight that create intricate dappled patterns and warm highlights on the grass around the bench. enhance the focus on the bench and the immediate foreground by gently blurring the distant elements, creating a strong sense of depth. add lifelike, dynamic touches, such as a butterfly delicately perched on the bench or a nearby flower, and subtle motion in the wildflowers and grass, evoking the gentle sway of a soft breeze. integrate harmonious, natural tones to accentuate the scene ’ s tranquility and blend vibrant details with soft realism for a more immersive and engaging visual experience.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['point. the bench, showcased slightly off - center with a gently curved design, highlights its fine craftsmanship, featuring intricate wood grain details and polished natural finishes. the background includes softly blurred figures strolling or cycling along winding pathways, enhancing the sense of life and movement without detracting from the serene atmosphere. add more emphasis on the intricate details of the wildflowers and the interplay of light on their petals. enhance the texture of the bench slightly further, highlighting the richness of its natural wood grain under the sunlight. ensure the balance between foreground and background elements while maintaining a warm, inviting, and picturesque ambiance.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['of golden sunlight that create intricate dappled patterns and warm highlights on the grass and wildflowers around the bench. enhance the focus on the bench and the immediate foreground by increasing the sharpness and detail of the bench ’ s texture while maintaining a gentle blur for the distant elements to amplify depth perception. include subtle, lifelike details such as a butterfly delicately perched on the bench or a nearby flower, and add mild motion to the grass and wildflowers to evoke the peaceful sway of a soft breeze. balance vibrant colors with softer tones, ensuring a tranquil and harmonious atmosphere while enriching the visual realism and immersion of the park setting.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['the scene, creating a tunnel - like perspective while filtering soft golden rays of sunlight that form intricate dappled patterns on the grass and flowers. enhance the realism by including subtle lifelike details such as a butterfly fluttering near the bench or calmly perched on it, along with softly swaying grass and flowers gently moving in a light breeze. incorporate a smooth, cinematic blur for the distant elements, further emphasizing the bench and foreground details. balance vibrant hues with soft, earthy tones to amplify the tranquil, harmonious atmosphere, while ensuring a natural and immersive representation of the idyllic park setting.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: [', highlighting its fine craftsmanship, with a gently curved design, intricate wood grain details, and polished natural finishes. the background includes softly blurred figures strolling or cycling along winding pathways, reinforcing a sense of life and movement while maintaining the serene, tranquil atmosphere. increase the focus on the intricate details and vivid hues of individual wildflowers, showcasing their petals and their interaction with the sunlight. enhance the richness of the bench ’ s texture further, emphasizing the warmth and elegance of the wood grain under the filtered sunlight. maintain a balanced composition, ensuring harmony between the foreground and background elements while retaining the inviting, picturesque ambiance.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['wood grain texture and its detailed craftsmanship, including its elegant curvature and smooth finish. the bench is slightly off - center in the composition, placed at the edge of a winding pathway that adds depth to the scene. the background includes softly blurred figures of people strolling or cycling in harmony with the peaceful environment, adding a subtle dynamic element. focus on achieving an even richer depiction of individual wildflowers and their interaction with the sunlight, as well as refining the natural shadow patterns on the ground. maintain a sense of depth, balance, and harmony throughout the scene, while capturing the inviting and serene ambiance of a picturesque park.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['the scene, creating a tunnel - like perspective while filtering soft golden rays of sunlight that form intricate dappled patterns on the grass and flowers. enhance the realism by including subtle lifelike details such as a butterfly fluttering near the bench or calmly perched on it, softly swaying grass, and flowers gently moving in a light breeze. add hints of dew on the grass and flowers to amplify the early - morning freshness. incorporate a smooth, cinematic blur for the distant elements, further emphasizing the bench and foreground details. balance vibrant and harmonious colors, with soft, earthy tones and dynamic lighting, to create a calming yet immersive representation of this picturesque park setting.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: [', vibrant detail. the sunlight streams through the dense canopy of mature trees, producing softly filtered light patterns on both the bench and the ground, adding realism and depth to the scene. the bench is slightly off - center, positioned at the edge of a gently winding pathway that adds perspective to the composition. in the softly blurred background, subtle dynamic elements like strolling figures and cyclists blend harmoniously with the serene ambiance. enhance the individual textures of the wood, wildflowers, and shadows, ensuring natural and balanced contrasts throughout. maintain a sense of inviting warmth, depth, and picturesque harmony in the composition.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['and vibrant wildflowers blooming in a spectrum of colors. enhance the magical atmosphere with subtle details, such as a butterfly fluttering nearby or perched on the bench, dew glistening on the grass and petals, and flowers swaying gently in the morning breeze. introduce a soft cinematic blur to the distant elements, maintaining a delicate focus on the bench and foreground. further balance the vibrant hues with earthy tones and dynamic, natural lighting, evoking a serene and immersive representation of this picturesque morning park scene. elevate realism by incorporating fine textures, shadows, and a slight sense of movement in the swaying foliage and grass, creating an inviting, harmonious composition.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['sunlight filters through the towering trees, casting intricate patterns of light and shadow on the grass and flowers, enhancing depth and atmosphere. a butterfly delicately perches on the bench, adding a touch of life and elegance to the scene. the background features a subtle cinematic blur, ensuring the focus remains on the richly detailed bench and its immediate surroundings. emphasize the interplay of natural textures, dynamic lighting, and earthy tones, creating an immersive and serene composition. further elevate realism with visible dew on petals and grass, soft shadows, and a slight sense of motion in the foliage and grass, making the scene feel alive and harmonious.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['vibrant detail. the sunlight streams through a dense canopy of mature trees, casting softly dappled light patterns on the bench, pathway, and ground, adding depth and realism to the scene. the bench is slightly off - center, positioned along the edge of a gently winding pathway, creating a sense of perspective. in the artfully blurred background, subtle and harmonious dynamic elements, like strolling figures and cyclists, blend naturally into the peaceful ambiance. prioritize a balanced composition, ensuring enhanced texture and realism in the wood, wildflowers, and light interplay, while maintaining a warm, serene, and visually inviting atmosphere.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['with lush green grass, their petals rendered with lifelike detail. the sunlight streams through a dense canopy of mature trees, creating softly dappled light patterns on the bench, pathway, and ground, lending depth, realism, and a dynamic interplay of light and shadow. the bench is slightly off - center, positioned artistically along the edge of a gently winding pathway, fostering a natural perspective. in the artfully blurred background, subtle yet lively elements like a strolling couple and cyclists merge seamlessly, enhancing the serene ambiance. prioritize ultra - realistic textures, vibrant yet balanced colors, and the refined interplay of natural light and shadows, emphasizing a warm, idyllic, and visually captivating atmosphere.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['ing gently in the soft morning breeze, including daisies, poppies, and lavender for a touch of diversity. the soft golden sunlight filters through towering, sprawling trees, casting intricate and dynamic patterns of light and shadow on the grass and flowers, enhancing depth and atmosphere. a butterfly delicately perches on the edge of the bench, with its vivid, intricate wing patterns adding a vibrant focal point of life and elegance to the scene. dewdrops glisten on the petals and grass, further elevating realism. the background features a subtle cinematic blur, maintaining the focus on the richly detailed bench, butterfly, and their immediate surroundings, while providing glimpses of trees and distant park elements. emphasize the interplay of natural textures, gently shifting foliage, and earthy tones to create an immersive, harmonious composition, evoking tranquility and the beauty of the morning. enhance the photographic realism with soft, diffused shadows, rich contrasts, and vibrant color grading.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['with lush, detailed green grass, their petals captured with intricate realism. the sunlight filters through the dense canopy of mature trees, casting softly dappled light patterns on the bench, pathway, and grass, creating a dynamic interplay of light, shadow, and depth. the bench is thoughtfully positioned slightly off - center along the edge of a gently winding pathway, enhancing the natural perspective. in the softly blurred background, lively yet subtle elements, such as a strolling couple and cyclists, blend seamlessly and add narrative depth without detracting from the main subject. include delicate touches like butterflies hovering near the wildflowers and the faint texture of the tree trunks, prioritizing ultra - realistic textures, balanced, lush colors, and the refined play of natural light and shadows. emphasize a warm, idyllic, and visually magnetic atmosphere for an enchanting composition.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['ing gently in the soft morning breeze, featuring delicate textures and intricate details in the daisies, poppies, and lavender. the soft golden sunlight filters through towering, sprawling trees, casting intricate and dynamic patterns of light and shadow on the grass and flowers, enhancing depth, atmosphere, and an inviting warmth. a vividly detailed butterfly delicately perches on the edge of the bench, its intricate wing patterns serving as a focal point of life and vibrant contrast within the scene. dewdrops glisten realistically on the petals and blades of grass, reflecting the morning light with remarkable accuracy. the background showcases a subtle cinematic blur with improved gradient transitions, ensuring the focus remains on the bench, butterfly, and immediate surroundings, while still hinting at distant park elements and overarching trees. emphasize high photographic realism with ultra - clear details, natural yet vibrant color grading, finely diffused lighting, and balanced contrasts to create an immersive, tranquil composition evoking the serene beauty of nature.']
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ["ing gently in the soft morning breeze, featuring intricate details and realistic textures in the daisies, poppies, and lavender. the soft golden sunlight filters through towering, sprawling trees, casting intricate and dynamic patterns of light and shadow on the grass and flowers, creating depth, warmth, and atmosphere. a vividly detailed butterfly delicately perches on the edge of the bench, its vibrant and intricate wing patterns serving as an eye - catching focal point. dewdrops glisten realistically on the petals and blades of grass, reflecting the morning light beautifully. the background showcases a soft cinematic blur with smooth gradient transitions for a professional, dreamy effect, maintaining focus on the bench, butterfly, and immediate surroundings while teasing elements of the park beyond. emphasize ultra - realistic photographic quality with natural yet vivid color grading, finely balanced lighting, and enriched contrasts. encourage harmonious composition and subtle enhancements to capture an even more tranquil and immersive portrayal of nature's beauty."]
+The following part of your input was truncated because CLIP can only handle sequences up to 77 tokens: ['highly detailed green grass. the petals of the flowers are captured with intricate realism, accentuating their natural beauty. the sunlight filters through a dense canopy of mature, textured trees, casting softly dappled light patterns on the bench, pathway, and grass, creating rich contrast and depth. the bench is thoughtfully positioned slightly off - center along the edge of a gently winding pathway lined with subtle, natural textures. in the softly blurred background, lively and detailed elements, such as a strolling couple, cyclists, or a playful child, blend seamlessly, adding narrative depth without detracting from the central focus. additional delicate touches like butterflies fluttering near the wildflowers, a scattering of fallen leaves on the ground, and faint bark textures on tree trunks contribute to the realism. prioritize ultra - detailed textures, balanced and vibrant colors, an enhanced interplay of light and shadow, and fine - tuned composition to create a warm, idyllic, and visually captivating atmosphere.']
+Sampling data: 1it [11:21, 681.91s/it]Sampling data: 1it [11:21, 681.91s/it]
+Folder creation and JSON opening took: 0.00 seconds.
+
+=== Round: 1 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [13557589].
+Generating images for batch with seeds: [287379224].
+Image serialization took: 0.85 seconds.
+Time taken for evaluation: 6.255889177322388 seconds
+Refinement with verifier and other IO took: 2.52 seconds.
+
+=== Round: 2 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [1663374963].
+Generating images for batch with seeds: [1544451933].
+Image serialization took: 0.98 seconds.
+Time taken for evaluation: 5.047815322875977 seconds
+Refinement with verifier and other IO took: 2.22 seconds.
+
+=== Round: 3 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [933358239].
+Generating images for batch with seeds: [1644633629].
+Image serialization took: 0.93 seconds.
+Time taken for evaluation: 4.346110105514526 seconds
+Refinement with verifier and other IO took: 3.85 seconds.
+
+=== Round: 4 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [756524592].
+Generating images for batch with seeds: [2138502414].
+Image serialization took: 0.95 seconds.
+Time taken for evaluation: 3.800640344619751 seconds
+Refinement with verifier and other IO took: 7.45 seconds.
+
+=== Round: 5 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [1639601641].
+Generating images for batch with seeds: [1547373082].
+Image serialization took: 1.05 seconds.
+Time taken for evaluation: 4.655656576156616 seconds
+Refinement with verifier and other IO took: 4.70 seconds.
+
+=== Round: 6 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [1925086621].
+Generating images for batch with seeds: [744930221].
+Image serialization took: 0.95 seconds.
+Time taken for evaluation: 6.232426166534424 seconds
+Refinement with verifier and other IO took: 6.40 seconds.
+
+=== Round: 7 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [961488616].
+Generating images for batch with seeds: [1146125531].
+Image serialization took: 1.00 seconds.
+Time taken for evaluation: 5.7957611083984375 seconds
+Refinement with verifier and other IO took: 5.65 seconds.
+
+=== Round: 8 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [169362763].
+Generating images for batch with seeds: [254153653].
+Image serialization took: 0.95 seconds.
+Time taken for evaluation: 6.007270812988281 seconds
+Refinement with verifier and other IO took: 12.73 seconds.
+
+=== Round: 9 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [1166172401].
+Generating images for batch with seeds: [668175225].
+Image serialization took: 0.94 seconds.
+Time taken for evaluation: 3.8795461654663086 seconds
+Refinement with verifier and other IO took: 7.68 seconds.
+
+=== Round: 10 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [1534962683].
+Generating images for batch with seeds: [1203554180].
+Image serialization took: 1.00 seconds.
+Time taken for evaluation: 9.785630702972412 seconds
+Refinement with verifier and other IO took: 6.93 seconds.
+
+=== Round: 11 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [472539188].
+Generating images for batch with seeds: [660821470].
+Image serialization took: 0.98 seconds.
+Time taken for evaluation: 4.455392599105835 seconds
+Refinement with verifier and other IO took: 5.48 seconds.
+
+=== Round: 12 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [266289439].
+Generating images for batch with seeds: [123087422].
+Image serialization took: 1.02 seconds.
+Time taken for evaluation: 4.218645095825195 seconds
+Refinement with verifier and other IO took: 6.74 seconds.
+
+=== Round: 13 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [1736669963].
+Generating images for batch with seeds: [89757647].
+Image serialization took: 1.00 seconds.
+Time taken for evaluation: 8.571971654891968 seconds
+Refinement with verifier and other IO took: 6.30 seconds.
+
+=== Round: 14 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [1216650486].
+Generating images for batch with seeds: [1518852017].
+Image serialization took: 1.04 seconds.
+Time taken for evaluation: 6.845457315444946 seconds
+Refinement with verifier and other IO took: 8.83 seconds.
+
+=== Round: 15 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [1074529175].
+Generating images for batch with seeds: [1253102740].
+Image serialization took: 1.04 seconds.
+Time taken for evaluation: 4.834129095077515 seconds
+Refinement with verifier and other IO took: 8.06 seconds.
+
+=== Round: 16 ===
+Number of noise samples: 2
+Generating images for batch with seeds: [1784289187].
+Generating images for batch with seeds: [353674167].
+Image serialization took: 1.04 seconds.
+Time taken for evaluation: 5.411891222000122 seconds
+Refinement with verifier and other IO took: 10.67 seconds.
+Time: 681904.375
