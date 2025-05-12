@@ -440,7 +440,10 @@ def sample(
             top_scores_with_images = sorted(all_scores_with_images,  key=lambda x: (0 if x[0] == "yes" else 1, -x[1] if x[0] == "yes" else x[1]))[0]
         else:
             raise NotImplementedError(f"Verifier {verifier_name} not supported")
-        label, score, img_path = top_scores_with_images
+        if verifier_name == "nvila":
+            label, score, img_path = top_scores_with_images
+        else:
+            score, img_path = top_scores_with_images
         img = Image.open(img_path)
         img.save(os.path.join(sample_path_best, f"{i:05}.png"))
 
@@ -530,7 +533,7 @@ def main():
         
         if os.path.isdir(folder_path):
             metadata_path = os.path.join(folder_path, 'metadata.jsonl')
-            samples_path = os.path.join(folder_path, 'samples')
+            samples_path = os.path.join(folder_path, 'midimg')
 
             with open(metadata_path, "r") as f:
                 metadata = [json.loads(line) for line in f]
