@@ -134,7 +134,7 @@ API_PORT=8001 CUDA_VISIBLE_DEVICES=0 llamafactory-cli api configs/our_reflection
 And change the `name` of `reflection_args` in the config file to `ours`.
 
 ### Run
-First, please run `tts_t2i_baseline.py` to generate naive noise scaling results, with the commands:
+First, please run `tts_t2i_noise_scaling.py` to generate naive noise scaling results, with the commands:
 ```bash
 export OUTPUT_DIR=output_dir
 cd tts
