@@ -213,7 +213,7 @@ def main():
         os.makedirs(outpath, exist_ok=True)
 
         # create middle img directory
-        midimg_path = os.path.join(outpath, "midimg")
+        midimg_path = os.path.join(outpath, "samples")
         os.makedirs(midimg_path, exist_ok=True)
 
         # create metadata file

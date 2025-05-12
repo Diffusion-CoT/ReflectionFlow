@@ -533,7 +533,7 @@ def main():
         
         if os.path.isdir(folder_path):
             metadata_path = os.path.join(folder_path, 'metadata.jsonl')
-            samples_path = os.path.join(folder_path, 'midimg')
+            samples_path = os.path.join(folder_path, 'samples')
 
             with open(metadata_path, "r") as f:
                 metadata = [json.loads(line) for line in f]
