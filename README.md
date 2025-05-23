@@ -173,7 +173,13 @@ python verifier_filter.py --imgpath=$OUTPUT_DIR --pipeline_config_path=configs/f
 
 ### Our Image Verifier
 
-We provide a simple start code for our image verifier.
+We provide a simple start code for our image verifier. To run the code, please first upgrade the `transformers`. Currently, we use the `transformers` version `4.51.3`.
+
+```bash
+pip install transformers==4.51.3
+```
+
+Then you can run the following code to get the score of the image:
 
 ```python
 from reward_modeling.test_reward import ImageVLMRewardInference
