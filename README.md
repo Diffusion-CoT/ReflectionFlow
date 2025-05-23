@@ -40,6 +40,7 @@
 
 ## :fire: News
 
+- [2025/5/23] Release the code for our image verifier.
 - [2025/4/23] Release [paper](https://arxiv.org/abs/2504.16080).
 - [2025/4/20] Release GenRef dataset, model checkpoints, as well as the training and inference code.
 
@@ -169,6 +170,24 @@ After generation, we provide the code using NVILA verifier to filter and get dif
 ```bash
 python verifier_filter.py --imgpath=$OUTPUT_DIR --pipeline_config_path=configs/flux.1_dev_nvilascore.json 
 ```
+
+### Our Image Verifier
+
+We provide a simple start code for our image verifier.
+
+```python
+from reward_modeling.test_reward import ImageVLMRewardInference
+import torch
+
+imgname = IMG_PATH
+original_prompt = ORIGINAL_PROMPT
+
+score_verfier = ImageVLMRewardInference(MODEL_PATH, load_from_pretrained_step=10080, device="cuda", dtype=torch.bfloat16)
+scores = score_verfier.reward([imgname], [original_prompt], use_norm=True)
+print(scores[0]['VQ'])
+```
+
+The `MODEL_PATH` is the path to the model [checkpoint](https://huggingface.co/diffusion-cot/Image-Verifier). And `scores[0]['VQ']` is the score of the text-image pair, which is higher the better.
 
 ## 🤝 Acknowledgement
 
