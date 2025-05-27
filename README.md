@@ -150,7 +150,7 @@ Next, you can run the following command to generate the results of reflection tu
 
 ```bash
 export NEW_OUTPUT_DIR=reflection_tuning_dir
-python tts_reflectionflow.py --imgpath=$OUTPUT_DIR --pipeline_config_path=configs/flux.1_dev_gptscore.json --output_dir=NEW_OUTPUT_DIR
+python tts_reflectionflow.py --imgpath=$OUTPUT_DIR --pipeline_config_path=configs/flux.1_dev_gptscore.json --output_dir=$NEW_OUTPUT_DIR
 ```
 
 We also provide the code for only noise & prompt scaling:
