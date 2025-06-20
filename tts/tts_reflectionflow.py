@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-
+import time
 import numpy as np
 import torch
 from diffusers import DiffusionPipeline
@@ -182,12 +182,15 @@ def sample(
         selected_outputs = selected_outputs + selected_outputs[:repeat_count]
 
     # save best img evaluation results
+    start_time = time.time()
     with open(os.path.join(root_dir, f"best_img_detailedscore.jsonl"), "a") as f:
         data = {
             "evaluation": selected_outputs,
             "filenames_batch": selected_imgs,
         }
         f.write(json.dumps(data) + "\n")
+    end_time = time.time()
+    print(f"Time taken for serializing best image eval results: {end_time - start_time} seconds")
     #####################################################
     # generate reflections first at each round
     # breakpoint()
@@ -263,21 +266,26 @@ def sample(
         best_img_refine_prompt = refined_prompt
     # save mid meta results
     if reflection_performed or refinement_performed:
+        start_time = time.time()
         with open(os.path.join(root_dir, f"best_img_meta.jsonl"), "a") as f:
             if reflection_performed:
                 f.write(f"reflections{search_round}: "+json.dumps(best_img_reflections) + "\n")
             if refinement_performed:
                 f.write(f"refined_prompt{search_round}: "+json.dumps(best_img_refine_prompt) + "\n")
             f.write(f"filenames_batch{search_round}: "+json.dumps(selected_imgs) + "\n")
+        end_time = time.time()
+        print(f"Serialization for refinement: {end_time - start_time} seconds.")
     #####################################################
     original_prompts = [original_prompt] * num_samples
     conditionimgs = []
+    start_time = time.time()
     for i in range(len(selected_imgs)):
         tmp = Image.open(selected_imgs[i])
         tmp = tmp.resize((config_cp["pipeline_args"]["condition_size"], config_cp["pipeline_args"]["condition_size"]))
         position_delta = np.array([0, -config_cp["pipeline_args"]["condition_size"] // 16])
         conditionimgs.append(Condition(condition=tmp, condition_type="cot", position_delta=position_delta))
-
+    end_time = time.time()
+    print(f"Preparation of conditioning took {end_time - start_time} seconds.")
     # Convert the noises dictionary into a list of (seed, noise) tuples.
     noise_items = list(noises.items())
 
@@ -292,8 +300,9 @@ def sample(
             prompts = refined_prompt
     else:
         prompts = original_prompts
-    start_time = time.time()
+    # start_time = time.time()
     full_imgnames = []
+    image_gen_times = []
     for i in range(0, len(noise_items), batch_size_for_img_gen):
         batch = noise_items[i : i + batch_size_for_img_gen]
         seeds_batch, noises_batch = zip(*batch)
@@ -311,6 +320,9 @@ def sample(
         conditionimgs_batch = conditionimgs[i : i + batch_size_for_img_gen]
 
         # use omini model to generate images
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
         batch_result = generate(
             pipe,
             prompt=batched_prompts,
@@ -320,6 +332,9 @@ def sample(
             model_config=config.get("model", None),
             default_lora=True,
         )
+        end.record()
+        torch.cuda.synchronize()
+        image_gen_times.extend([start.elapsed_time(end)])
         batch_images = batch_result.images
         if use_low_gpu_vram:
             pipe = pipe.to("cpu")
@@ -331,7 +346,7 @@ def sample(
             seeds_used.append(seed)
             image.save(filename)
     end_time = time.time()
-    print(f"Time taken for image generation: {end_time - start_time} seconds")
+    # print(f"Time taken for image generation: {end_time - start_time} seconds")
 
     ################## score again to decide whether save
     start_time = time.time()
@@ -356,6 +371,7 @@ def sample(
     print(f"Time taken for evaluation: {end_time - start_time} seconds")
 
     # init chain
+    start_time = time.time()
     if search_round == 1:
         # Update chains with the selected images and scores
         if verifier_name == "openai":
@@ -447,6 +463,9 @@ def sample(
         img = Image.open(img_path)
         img.save(os.path.join(sample_path_best, f"{i:05}.png"))
 
+    end_time = time.time()
+    print(f"Misc serialization took {end_time - start_time} seconds.")
+
     datapoint = {
         "original_prompt": original_prompt,
         "search_round": search_round,
@@ -455,6 +474,7 @@ def sample(
         "generated_img": full_imgnames,
         "flag_terminated": flag_terminated,
         "chains": chains,
+        "image_gen_times": image_gen_times
     }
     if refinement_performed:
         datapoint["refined_prompt"] = best_img_refine_prompt
@@ -548,17 +568,20 @@ def main():
                     folder_data['images'].append(img_path)
             metadatas.append(folder_data)
 
+    metadatas = metadatas[:1] # benchmarking
 
     # meta splits
-    if args.end_index == -1:
-        metadatas = metadatas[args.start_index:]
-    else:
-        metadatas = metadatas[args.start_index:args.end_index]
+    # if args.end_index == -1:
+    #     metadatas = metadatas[args.start_index:]
+    # else:
+    #     metadatas = metadatas[args.start_index:args.end_index]
 
+    timings = []
     for index, metadata in tqdm(enumerate(metadatas), desc="Sampling data"):
         metadatasave = metadata['metadata']
         images = metadata['images']
         # create output directory
+        start_time = time.time()
         outpath = os.path.join(root_dir, f"{index + args.start_index:0>5}")
         os.makedirs(outpath, exist_ok=True)
 
@@ -577,6 +600,9 @@ def main():
         # create metadata file
         with open(os.path.join(outpath, "metadata.jsonl"), "w") as fp:
             json.dump(metadatasave[0], fp)
+
+        end_time = time.time()
+        print(f"Misc IO and serialization took {end_time - start_time} seconds.")
 
         updated_prompt = [metadatasave[0]['prompt']] * search_branch
         original_prompt = metadatasave[0]['prompt']
@@ -618,6 +644,7 @@ def main():
                 total_rounds=search_rounds,
                 chains=chains
             )
+            timings.extend(datapoint["image_gen_times"])
             if use_reflection or use_refine:
                 if use_reflection:
                     reflections = datapoint['reflections']
@@ -627,6 +654,8 @@ def main():
             chains = datapoint['chains']
             if datapoint['flag_terminated']:
                 break
+
+    print(f"Total image gen time: {sum(timings):.2f} seconds.")
 
 if __name__ == "__main__":
     main()
