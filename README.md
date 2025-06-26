@@ -40,6 +40,7 @@
 
 ## :fire: News
 
+- [2025/6/25] Our paper is accepted by ICCV 2025!
 - [2025/5/23] Release the code for our image verifier.
 - [2025/4/23] Release [paper](https://arxiv.org/abs/2504.16080).
 - [2025/4/20] Release GenRef dataset, model checkpoints, as well as the training and inference code.
