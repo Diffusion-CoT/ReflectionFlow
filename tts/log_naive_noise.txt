@@ -1,0 +1,89 @@
+Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s][ALoading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 54.16it/s]
+Loading pipeline components...:  43%|████▎     | 3/7 [00:00<00:00, 18.85it/s]
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s][ALoading checkpoint shards: 100%|██████████| 3/3 [00:00<00:00, 42.71it/s]
+Loading pipeline components...:  86%|████████▌ | 6/7 [00:00<00:00, 17.14it/s]You set `add_prefix_space`. The tokenizer needs to be converted from the slow tokenizers
+Loading pipeline components...: 100%|██████████| 7/7 [00:00<00:00, 12.40it/s]
+Sampling prompts: 0it [00:00, ?it/s]Sampling prompts: 1it [08:12, 492.10s/it]Sampling prompts: 1it [08:12, 492.10s/it]
+Folder creation and JSON opening took: 0.00 seconds.
+
+=== Round: 1 ===
+Generating images for batch with seeds: [1412510432].
+Generating images for batch with seeds: [691175494].
+Image serialization took: 0.83 seconds.
+
+=== Round: 2 ===
+Generating images for batch with seeds: [1455950135].
+Generating images for batch with seeds: [1321371547].
+Image serialization took: 0.79 seconds.
+
+=== Round: 3 ===
+Generating images for batch with seeds: [342876182].
+Generating images for batch with seeds: [1257931078].
+Image serialization took: 0.87 seconds.
+
+=== Round: 4 ===
+Generating images for batch with seeds: [190684787].
+Generating images for batch with seeds: [1198709334].
+Image serialization took: 0.83 seconds.
+
+=== Round: 5 ===
+Generating images for batch with seeds: [1050684505].
+Generating images for batch with seeds: [1765954606].
+Image serialization took: 0.86 seconds.
+
+=== Round: 6 ===
+Generating images for batch with seeds: [102214368].
+Generating images for batch with seeds: [1882864211].
+Image serialization took: 0.89 seconds.
+
+=== Round: 7 ===
+Generating images for batch with seeds: [1119095312].
+Generating images for batch with seeds: [766898254].
+Image serialization took: 0.85 seconds.
+
+=== Round: 8 ===
+Generating images for batch with seeds: [1941068873].
+Generating images for batch with seeds: [2092558658].
+Image serialization took: 0.86 seconds.
+
+=== Round: 9 ===
+Generating images for batch with seeds: [1450279666].
+Generating images for batch with seeds: [1017617413].
+Image serialization took: 0.94 seconds.
+
+=== Round: 10 ===
+Generating images for batch with seeds: [299857752].
+Generating images for batch with seeds: [238849333].
+Image serialization took: 0.88 seconds.
+
+=== Round: 11 ===
+Generating images for batch with seeds: [504298609].
+Generating images for batch with seeds: [58365203].
+Image serialization took: 0.84 seconds.
+
+=== Round: 12 ===
+Generating images for batch with seeds: [376127004].
+Generating images for batch with seeds: [638865873].
+Image serialization took: 0.89 seconds.
+
+=== Round: 13 ===
+Generating images for batch with seeds: [507498130].
+Generating images for batch with seeds: [577042757].
+Image serialization took: 0.69 seconds.
+
+=== Round: 14 ===
+Generating images for batch with seeds: [479773152].
+Generating images for batch with seeds: [1651404906].
+Image serialization took: 0.91 seconds.
+
+=== Round: 15 ===
+Generating images for batch with seeds: [147997326].
+Generating images for batch with seeds: [1774332912].
+Image serialization took: 0.81 seconds.
+
+=== Round: 16 ===
+Generating images for batch with seeds: [52998602].
+Generating images for batch with seeds: [504657197].
+Image serialization took: 0.82 seconds.
+Total image gen time: 478282.62 seconds.
