@@ -15,7 +15,7 @@ train:
   sample_interval: 2000
   max_steps: -1
   gradient_checkpointing: true
-  save_path: "./runs/test"
+  save_path: "./runs/prompt_reflection_cond_512"
 
   # Specify the type of condition to use.
   condition_type: "cot"
@@ -23,7 +23,7 @@ train:
   resume_training_from_checkpoint_path: ""
   dataset:
     type: "img"
-    path: "pipe:curl -s -f -L https://huggingface.co/datasets/diffusion-cot/GenRef-wds/resolve/main/genref_{0..208}.tar"
+    path: "/ceph/hf-cache/hub/datasets--diffusion-cot--GenRef-wds/snapshots/42c837b891fc34a944ed0c8124876a7e8225266f/*.tar"
     split_ratios: {
       "general": [0.1, 0.3],
       "length": [0.1, 0.3],
@@ -36,15 +36,15 @@ train:
     #   "general": "VAL_TARS"
     # }
     # val_root_dir: ""
-    # condition_size: 512
-    # target_size: 1024
-    # drop_text_prob: 0.1
-    # drop_image_prob: 0.1
-    # drop_reflection_prob: 0.1
+    condition_size: 512
+    target_size: 1024
+    drop_text_prob: 0.1
+    drop_image_prob: 0.1
+    drop_reflection_prob: 0.1
 
   wandb:
     project: "ReflectionFlow"
-    name: "full_data_cond_512"
+    name: "prompt_reflection_cond_512"
 
   lora_config:
     r: 32

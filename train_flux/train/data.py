@@ -61,8 +61,13 @@ class ImageConditionWebDataset(IterableDataset):
         if "https://" not in shards_pattern:
             shards_pattern = glob.glob(shards_pattern) 
         for split in self.splits:
+            # Define mandatory keys that must exist in each sample
+            MANDATORY_KEYS = {"good_image.jpg", "bad_image.jpg", "reflection.txt", "prompt.txt", "subset.txt"}
+            
             ds = (
                 wds.WebDataset(shards_pattern, handler=wds.ignore_and_continue, nodesplitter=nodesplitter)
+                  # First filter samples to ensure all required keys exist
+                  .select(lambda sample: set(sample.keys()) >= MANDATORY_KEYS)
                   .shuffle(shuffle_buffer)
                   .decode("pil")  # good_image.jpg / bad_image.jpg → PIL
                   .to_tuple(
@@ -205,7 +210,7 @@ if __name__ == "__main__":
 
     # local path should be provided as 
     # shards_pattern = "DIR_WHERE_GenRef-wds_IS_DOWNLOADED/*.tar"
-    shards_pattern = "pipe:curl -s -f -L https://huggingface.co/datasets/diffusion-cot/GenRef-wds/resolve/main/genref_{0..2}.tar"
+    shards_pattern = "/ceph/hf-cache/hub/datasets--diffusion-cot--GenRef-wds/snapshots/42c837b891fc34a944ed0c8124876a7e8225266f/*.tar"
     dataset = ImageConditionWebDataset(
         shards_pattern=shards_pattern,
         condition_size=1024,
@@ -222,8 +227,10 @@ if __name__ == "__main__":
     loader = DataLoader(dataset, batch_size=8, num_workers=4)
 
     # iterate:
-    for batch in loader:
-        print(batch.keys())
-        print(batch["image"].size())
-        print(batch["condition"].size())
-        break
+    from tqdm import tqdm
+    for batch in tqdm(loader):
+        continue
+        # print(batch.keys())
+        # print(batch["image"].size())
+        # print(batch["condition"].size())
+        # break

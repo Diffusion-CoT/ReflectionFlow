@@ -1,10 +1,8 @@
-#!/bin/bash
+conda init
+source ~/.bashrc
+conda activate /ceph/data-bk/miniconda3/envs/flux
 
-# Specify the config file path
-export XFL_CONFIG=config.yaml
-
-# Specify the WANDB API key
-export WANDB_API_KEY=""
+cd /ceph/data-bk/zl/ReflectionFlow/train_flux
 
 export TOKENIZERS_PARALLELISM=true
 accelerate launch --main_process_port 41353 -m train.train

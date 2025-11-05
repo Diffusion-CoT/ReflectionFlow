@@ -185,23 +185,27 @@ class OminiModel(L.LightningModule):
             t_ = t.unsqueeze(1).unsqueeze(1)
             x_t = ((1 - t_) * x_0 + t_ * x_1).to(self.dtype)
             
-            # Prepare conditions
-            condition_latents, condition_ids = encode_images(self.flux_pipe, conditions)
+            # # Prepare conditions
+            # condition_latents, condition_ids = encode_images(self.flux_pipe, conditions)
 
-            # Add position delta
-            condition_ids[:, 1] += position_delta[0]
-            condition_ids[:, 2] += position_delta[1]
+            # # Add position delta
+            # condition_ids[:, 1] += position_delta[0]
+            # condition_ids[:, 2] += position_delta[1]
 
-            # Prepare condition type
-            condition_type_ids = torch.tensor(
-                [
-                    Condition.get_type_id(condition_type)
-                    for condition_type in condition_types
-                ]
-            ).to(self.device)
-            condition_type_ids = (
-                torch.ones_like(condition_ids[:, 0]) * condition_type_ids[0]
-            ).unsqueeze(1)
+            # # Prepare condition type
+            # condition_type_ids = torch.tensor(
+            #     [
+            #         Condition.get_type_id(condition_type)
+            #         for condition_type in condition_types
+            #     ]
+            # ).to(self.device)
+            # condition_type_ids = (
+            #     torch.ones_like(condition_ids[:, 0]) * condition_type_ids[0]
+            # ).unsqueeze(1)
+            
+            condition_latents = None
+            condition_ids = None
+            condition_type_ids = None
 
             # Prepare guidance
             guidance = (
