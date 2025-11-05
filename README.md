@@ -40,6 +40,8 @@
 
 ## :fire: News
 
+- [2025/6/25] Our paper is accepted by ICCV 2025!
+- [2025/5/23] Release the code for our image verifier.
 - [2025/4/23] Release [paper](https://arxiv.org/abs/2504.16080).
 - [2025/4/20] Release GenRef dataset, model checkpoints, as well as the training and inference code.
 
@@ -102,29 +104,43 @@ for optimization, but we didn't prioritize them in this release.
 We provide the code for the inference time scaling of our reflection-tuned models. Currently, we support:
 * GPT-4o as verifier, reflection generator, and prompt refiner.
 * [NVILA-2B](https://huggingface.co/Efficient-Large-Model/NVILA-Lite-2B-Verifier) verifier from SANA.
-* Our [Reflection Generator](https://huggingface.co/diffusion-cot/Reflection-Generator).
+* Our [reflection generator](https://huggingface.co/diffusion-cot/Reflection-Generator).
 
 ### Setup
-First, you need to set up with the following command lines:
+First, you need to set up the following:
+
 ```bash
 export OPENAI_API_KEY=your_api_key
 # if you want to use NVILA as verifier
 pip install transformers==4.46
 pip install git+https://github.com/bfshi/scaling_on_scales.git
 ```
-Then you need to set up the FLUX_PATH and LORA_PATH in the config file of `tts/config`.
+Then you need to set up the `FLUX_PATH` and `LORA_PATH` in the config file of your choice from [tts/config](./tts/configs/). The `FLUX_PATH` is basically the contents of [black-forest-labs/FLUX.1-dev](https://huggingface.co/black-forest-labs/FLUX.1-dev/tree/main) which can be downloaded like so:
 
-If you want to use our finetuned reflection generator, you need to first install [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). Then download
-the model from [here](https://huggingface.co/diffusion-cot/reward-models/tree/main) and change the `model_name_or_path` in the config file of
-`tts/config/our_reflectionmodel.yaml`. Next, host the model with:
+```py
+from huggingface_hub import snapshot_download
+
+local_dir = "SOME_DIR"
+snapshot_download(repo_id="black-forest-labs/FLUX.1-dev", local_dir=local_dir)
+```
+
+The `LORA_PATH` is our [corrector model](https://huggingface.co/diffusion-cot/FLUX-Corrector) path.
+
+If you want to use our finetuned reflection generator, you need to first install [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). Then download the model from [here](https://huggingface.co/diffusion-cot/Reflection-Generator) and change the `model_name_or_path` in the config file of
+`tts/config/our_reflectionmodel.yaml` to the reflection generator path. To be specific, the path should be like `Reflection-Generator/infer/30000`. Next, host the model with:
 
 ```bash
 API_PORT=8001 CUDA_VISIBLE_DEVICES=0 llamafactory-cli api configs/our_reflectionmodel.yaml
 ```
-And change the `name` of `reflection_args` in the config file to `ours`.
+And change the `name` of `reflection_args` in the config file (for example: [tts/configs/flux.1_dev_gptscore.json](./tts/config/flux.1_dev_gptscore.json)) to `ours`.
+
+> [!NOTE]
+> When using our reflection generator model, please consider using at least two GPUs for better allocating resources.
 
 ### Run
-First, please run `tts_t2i_baseline.py` to generate naive noise scaling results, with the commands:
+
+First, please run `tts_t2i_noise_scaling.py` to generate naive noise scaling results, with the commands:
+
 ```bash
 export OUTPUT_DIR=output_dir
 cd tts
@@ -132,21 +148,53 @@ python tts_t2i_noise_scaling.py --output_dir=$OUTPUT_DIR --meta_path=geneval/eva
 ```
 
 Next, you can run the following command to generate the results of reflection tuning:
+
 ```bash
-python tts_reflectionflow.py --imgpath=$OUTPUT_DIR --pipeline_config_path=CONFIG_PATH --output_dir=NEW_OUTPUT_DIR
+export NEW_OUTPUT_DIR=reflection_tuning_dir
+python tts_reflectionflow.py --imgpath=$OUTPUT_DIR --pipeline_config_path=configs/flux.1_dev_gptscore.json --output_dir=$NEW_OUTPUT_DIR
 ```
 
 We also provide the code for only noise & prompt scaling:
+
 ```bash
 python tts_t2i_noise_prompt_scaling.py --output_dir=$OUTPUT_DIR --meta_path=geneval/evaluation_metadata.jsonl --pipeline_config_path=configs/flux.1_dev_gptscore.json 
 ```
 
+You can also change to [tts/configs/flux.1_dev_nvilascore.json](./tts/config/flux.1_dev_nvilascore.json) to use the NVILA verifier.
+
+By default, we use prompts from [tts/config/geneval/evaluation_metadata.jsonl](./tts/config/geneval/evaluation_metadata.jsonl). If you don't want to use all the prompts from it, you can specify `--start_index` and `--end_index` CLI args.
+
 ### NVILA Verifier Filter
 
 After generation, we provide the code using NVILA verifier to filter and get different numbers of sample results.
+
 ```bash
 python verifier_filter.py --imgpath=$OUTPUT_DIR --pipeline_config_path=configs/flux.1_dev_nvilascore.json 
 ```
+
+### Our Image Verifier
+
+We provide a simple start code for our image verifier. To run the code, please first upgrade the `transformers`. Currently, we use the `transformers` version `4.51.3`.
+
+```bash
+pip install transformers==4.51.3
+```
+
+Then you can run the following code to get the score of the image:
+
+```python
+from reward_modeling.test_reward import ImageVLMRewardInference
+import torch
+
+imgname = IMG_PATH
+original_prompt = ORIGINAL_PROMPT
+
+score_verfier = ImageVLMRewardInference(MODEL_PATH, load_from_pretrained_step=10080, device="cuda", dtype=torch.bfloat16)
+scores = score_verfier.reward([imgname], [original_prompt], use_norm=True)
+print(scores[0]['VQ'])
+```
+
+The `MODEL_PATH` is the path to the model [checkpoint](https://huggingface.co/diffusion-cot/Image-Verifier). And `scores[0]['VQ']` is the score of the text-image pair, which is higher the better.
 
 ## 🤝 Acknowledgement
 
@@ -162,12 +210,12 @@ If you find ReflectionFlow useful for your research and applications, please cit
 
 ```bibtex
 @misc{zhuo2025reflectionperfectionscalinginferencetime,
-      title={From Reflection to Perfection: Scaling Inference-Time Optimization for Text-to-Image Diffusion Models via Reflection Tuning}, 
-      author={Le Zhuo and Liangbing Zhao and Sayak Paul and Yue Liao and Renrui Zhang and Yi Xin and Peng Gao and Mohamed Elhoseiny and Hongsheng Li},
-      year={2025},
-      eprint={2504.16080},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2504.16080}, 
+    title={From Reflection to Perfection: Scaling Inference-Time Optimization for Text-to-Image Diffusion Models via Reflection Tuning}, 
+    author={Le Zhuo and Liangbing Zhao and Sayak Paul and Yue Liao and Renrui Zhang and Yi Xin and Peng Gao and Mohamed Elhoseiny and Hongsheng Li},
+    year={2025},
+    eprint={2504.16080},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV},
+    url={https://arxiv.org/abs/2504.16080}, 
 }
 ```
